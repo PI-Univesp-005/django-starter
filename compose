@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+OS_TYPE="$(uname -s)"
+DB=$(grep -E '^DB=' .env | cut -d= -f2 | tr -d '"')
+SU=""
+if [[ "$OS_TYPE" == "Linux" ]]; then
+    SU="sudo"
+fi
+
+if [ "$DB" = "postgres" ]; then
+    PROFILE_FLAG=" --profile postgres"
+elif [ "$DB" = "mysql" ]; then
+    PROFILE_FLAG=" --profile mysql"
+else
+    PROFILE_FLAG=""
+fi
+
+$SU docker compose$PROFILE_FLAG "$@"

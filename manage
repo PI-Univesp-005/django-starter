@@ -30,20 +30,20 @@ fi
 # echo "🚦 Checking -> SU=$SU / PROFILE=${PROFILE_FLAG:-$DB}"
 
 
-# Wait for the virtual environment to be ready (race conditions prevention)
+# Wait for the Django App's container to be ready (race conditions prevention)
 MAX_RETRIES=10
 ATTEMPT=0
 while ! $SU docker compose$PROFILE_FLAG exec web test -f /app/.venv/bin/python 2>/dev/null; do
     ATTEMPT=$((ATTEMPT + 1))
     if [ $ATTEMPT -ge $MAX_RETRIES ]; then
-        echo "❌ Django App container not found, after $ATTEMPT attempt(s). Aborting...."
+        echo "❌ Django App's container not found, after $ATTEMPT attempt(s). Aborting...."
         exit 1
     fi
-    echo "⏳ ($ATTEMPT/$MAX_RETRIES) Waiting for Django App container to be created..."
+    echo "⏳ ($ATTEMPT/$MAX_RETRIES) Waiting for Django App's container to be created..."
     sleep 2
 done
-[ $ATTEMPT -gt 0 ] && echo "✅ Django App container is ready after $ATTEMPT attempts."
+[ $ATTEMPT -gt 0 ] && echo "✅ Django App's container is ready after $ATTEMPT attempts."
 
-# Forward all arguments to manage.py using the Django App container's Python.
+# Forward all arguments to manage.py using the Django App's container's Python.
 # The -it flag is needed for interactive commands like createsuperuser.
 $SU docker compose$PROFILE_FLAG exec -it web /app/.venv/bin/python src/manage.py "$@"
