@@ -31,14 +31,14 @@ COPY requirements.txt ./
 
 # Copy the Django source tree.
 COPY src/ ./src
+COPY scripts/ ./scripts
 
 # Copy the entrypoint script and make it executable.
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x scripts/entrypoint.sh
 
 # Expose port 3333 — the Django development server's default port.
 EXPOSE 3333
 
 # The entrypoint handles venv creation, dependency installation,
 # optional postgres health-wait, migration, and finally server start.
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["scripts/entrypoint.sh"]

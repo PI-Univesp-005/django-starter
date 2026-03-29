@@ -91,11 +91,11 @@ fi
 
 # ── Step 4: Migrate and serve ─────────────────────────────────────────────────
 printf "$PFX 🔄 \033[1mRunning database migrations ...\033[0m\n"
-python src/manage.py migrate --noinput
+python scripts/manage.py migrate --noinput
 
 printf "\n\033[3mDone, ready to start the server...\033[0m\n\n"
 printf "$PFX 🚀 \033[1mStarting Django development server on\033[0m http://0.0.0.0:$PORT ...\n"
 printf "$PFX 🛢️  \033[1mDatabase backend:\033[0m $DB\n"
 printf "\n"
 
-exec python src/manage.py runserver 0.0.0.0:$PORT 1> /dev/null
+exec python scripts/manage.py runserver 0.0.0.0:$PORT 1> /dev/null

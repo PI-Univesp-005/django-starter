@@ -43,4 +43,4 @@ done
 
 # Forward all arguments to manage.py using the Django App's container's Python.
 # The -it flag is needed for interactive commands like createsuperuser.
-$SU docker compose$PROFILE_FLAG exec -it web /app/.venv/bin/python src/manage.py "$@"
+$SU docker compose$PROFILE_FLAG exec -it web /app/.venv/bin/python scripts/manage.py "$@"

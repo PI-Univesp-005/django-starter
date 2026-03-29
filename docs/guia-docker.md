@@ -107,13 +107,13 @@ Para rodar um comando único sem abrir um shell interativo, passe o comando dire
 
 ```bash
 # rodar as migrations manualmente de dentro do container
-docker compose exec web python src/manage.py migrate
+docker compose exec web python scripts/manage.py migrate
 
 # abrir o Django shell (REPL Python com o ORM carregado)
-docker compose exec web python src/manage.py shell
+docker compose exec web python scripts/manage.py shell
 
 # checar migrations pendentes sem aplicar
-docker compose exec web python src/manage.py migrate --check
+docker compose exec web python scripts/manage.py migrate --check
 ```
 
 ---

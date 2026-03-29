@@ -104,7 +104,7 @@ Use o script [`./compose`](./compose) para sempre rodar o docker compose no perf
 
 **...**
 
-O mesmo value para os comandos do django através do `manage.py`. Para garantir que ele rode no container, use o script [`./manage`](./manage). Ele só funciona se o container da aplicação Django estiver rodando. Exemplos:
+O mesmo vale para os comandos do django através do `manage.py`. Para garantir que ele rode no container, use o script [`./manage`](./manage). Ele só funciona se o container da aplicação Django estiver rodando. Exemplos:
 - `./manage makemigrations`
 - `./manage createsuperuser`
 
@@ -178,7 +178,7 @@ Acesse [http://localhost:3333](http://localhost:3333) e você verá algo como:
 
 ### Trocando de bancos de dados
 
-Para trocar de SQLite para PostgreSQL (ou vice-versa), pare os containers com `Ctrl+C` ou `docker compose down`, comente todos os valores do banco atual no `.env`, descomente o do novo banco que deseja rodar pronto. Por exemplo, ao rodar a aplicação com o banco Postgres, as únicas linhas não comentadas do `./env` seriam as seguintes:
+Para trocar de SQLite para PostgreSQL (ou vice-versa), pare os containers com `Ctrl+C` ou `docker compose down`, comente todos os valores do banco atual no `.env`, descomente o do novo banco que deseja rodar. Pronto. Por exemplo, ao rodar a aplicação com o banco Postgres, as **únicas** linhas referentes a banco de dados que **não** estariam comentadas no `./env` seriam as seguintes:
 
 ```
 DB=postgres
@@ -212,26 +212,27 @@ O Docker Compose controla a *infraestrutura*: quais containers o Docker inicia. 
 ├── compose
 ├── docker-compose.yml
 ├── Dockerfile
-├── entrypoint.sh
+├── .env
 │
+├── scripts
+│   ├── entrypoint.sh
+│   └── manage.py
 ├── src
 │   ├── config
 │   │   ├── asgi.py
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   └── wsgi.py
-│   ├── core
-│   │   ├── migrations
-│   │   │   ├── 0001_test.py
-│   │   │   └── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── __init__.py
-│   │   ├── models.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   └── manage.py
-│
+│   └── core
+│       ├── migrations
+│       │   ├── 0001_test.py
+│       │   └── __init__.py
+│       ├── admin.py
+│       ├── apps.py
+│       ├── __init__.py
+│       ├── models.py
+│       ├── urls.py
+│       └── views.py
 ├── docker
 │   ├── mysql
 │   │   ├── Dockerfile
@@ -240,9 +241,7 @@ O Docker Compose controla a *infraestrutura*: quais containers o Docker inicia. 
 │   │   ├── Dockerfile
 │   │   └── init.sql
 │   └── sqlite
-│
 └── docs
-    ├── db_connection_failure.png
     ├── guia-django.md
     ├── guia-docker.md
     ├── guia-git-bash-vscode.md
@@ -251,7 +250,7 @@ O Docker Compose controla a *infraestrutura*: quais containers o Docker inicia. 
     ├── macOS-docker-install.md
     └── windows-docker-install.md
 
-10 directories, 32 files
+11 directories, 31 files
 ```
 ---
 

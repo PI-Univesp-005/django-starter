@@ -1,8 +1,12 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
 
+# Added after moving it to scripts/ directory to be able to resolve "config.settings"
+# I let the manage.py isolated to reinfoce the use of the proxy-script `manage`
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR / "src"))
 
 def main():
     """Run administrative tasks."""
