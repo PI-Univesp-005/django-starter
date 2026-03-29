@@ -296,8 +296,11 @@ OBS: Caso esteja rodando o banco SQLite e queira recuperar o arquivo do banco de
 
 ## Pontos Pendentes (TODO)
 Essa primeira versão do projeto ainda não resolve o problema de rodar o `manage.py` localmente (utilitário de linha de comando do Django), para ações que visam interferir na estrutura da repo, como na criação de migrations, criar usuários admin para o painel administrativo do Django, etc. Rodar o servidor no Docker está ok, mas sem um mínimo alinhamento local (versão do python correta, organização do setup do `venv` do python e instalação das dependências do `requirements.txt`), não é possível usar o `manage.py`. Para abordar isso, é necessário:
+
 - [ ] Primeiro revisar e garantir que todo mundo conseguiu rodar em cada máquina a versão atual, antes de novas tarefas.
-- [ ] Documentar como instalar a versão correta do python em cada SO.
-- [ ] Criar um shell script para setar o venv só caso necessário, instalar dependências e expor comandos mais simples para chamar o manage.py
+
+- [x] <s>Criar um shell script para setar o venv só caso necessário, instalar dependências e expor comandos mais simples para chamar o manage.py</s>
+
 - [ ] Validar em uma branch minha, criando novas migrations de teste através desse script, antes de subir a Pull Request.
+
 - [ ] Revisar se todo mundo conseguiu criar novas migrations com o novo shell script, em seus respectivos ambientes (e adaptar isso para Windows)

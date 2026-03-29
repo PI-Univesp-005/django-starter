@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# manage.sh — proxy to Django's manage.py running inside the web container.
+#
+# Usage from the project root:
+#   ./manage makemigrations
+#   ./manage migrate
+#   ./manage createsuperuser
+#   ./manage shell
+#
+# This script runs manage.py inside the container using the container's venv,
+# against the container's running database. The ./src bind mount ensures that
+# any files generated (e.g. migrations) appear immediately on your project.
+
+OS_TYPE="$(uname -s)"
+DB=$(grep -E '^DB=' .env | cut -d= -f2 | tr -d '"')
+SU=""
+if [[ "$OS_TYPE" == "Linux" ]]; then
+    SU="sudo"
+fi
+
+if [ "$DB" = "postgres" ]; then
+    PROFILE_FLAG=" --profile postgres"
+elif [ "$DB" = "mysql" ]; then
+    PROFILE_FLAG=" --profile mysql"
+else
+    PROFILE_FLAG=""
+fi
+
+# echo "🚦 Checking -> SU=$SU / PROFILE=${PROFILE_FLAG:-$DB}"
+
+
+# Wait for the virtual environment to be ready (race conditions prevention)
+MAX_RETRIES=10
+ATTEMPT=0
+while ! $SU docker compose$PROFILE_FLAG exec web test -f /app/.venv/bin/python 2>/dev/null; do
+    ATTEMPT=$((ATTEMPT + 1))
+    if [ $ATTEMPT -ge $MAX_RETRIES ]; then
+        echo "❌ Django App container not found, after $ATTEMPT attempt(s). Aborting...."
+        exit 1
+    fi
+    echo "⏳ ($ATTEMPT/$MAX_RETRIES) Waiting for Django App container to be created..."
+    sleep 2
+done
+[ $ATTEMPT -gt 0 ] && echo "✅ Django App container is ready after $ATTEMPT attempts."
+
+# Forward all arguments to manage.py using the Django App container's Python.
+# The -it flag is needed for interactive commands like createsuperuser.
+$SU docker compose$PROFILE_FLAG exec -it web /app/.venv/bin/python src/manage.py "$@"
