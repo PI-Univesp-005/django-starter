@@ -1,0 +1,45 @@
+# =============================================================================
+# .gitattributes — Line ending normalisation
+#
+# This file tells Git how to handle line endings when files are checked out
+# on different operating systems. Without it, a Windows contributor's Git
+# client (configured with core.autocrlf=true) will convert Unix line endings
+# (LF, \n) to Windows line endings (CRLF, \r\n) in shell scripts. Shell
+# scripts with CRLF line endings fail inside Linux containers with the
+# cryptic error: "bash: \r: command not found".
+#
+# The rules below solve this without requiring every contributor to change
+# their Git configuration:
+#
+#   * = text=auto         → Git normalises all text files to LF in the repo.
+#                           On checkout, Windows gets CRLF for text files
+#                           (which is fine for .py, .md, .txt etc.) and
+#                           Linux/macOS get LF.
+#
+#   *.sh eol=lf           → Shell scripts ALWAYS get LF on checkout,
+#                           regardless of the contributor's OS or Git config.
+#
+#   *.sh text eol=lf      → Belt-and-suspenders: also marks .sh as text
+#                           (not binary) so Git diffs show changes.
+# =============================================================================
+
+# Default: normalise all text files
+* text=auto
+
+# Shell scripts must always use Unix line endings
+*.sh text eol=lf
+
+# Docker-related files are used in Linux containers — keep LF
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+entrypoint.sh text eol=lf
+
+# Python files — LF everywhere for consistency
+*.py text eol=lf
+
+# Markdown and config — let the OS normalise these (safe either way)
+*.md text
+*.txt text
+*.env text
+*.example text
+requirements.txt text

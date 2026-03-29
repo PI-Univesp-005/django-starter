@@ -1,0 +1,23 @@
+# =============================================================================
+# requirements.txt — Python dependencies for Django Starter
+#
+# Version pinning strategy:
+#   - Django is pinned to 5.2.x (LTS) — security patches until ~April 2028.
+#     The ~= operator ("compatible release") allows 5.2.1, 5.2.2, etc., but
+#     NOT 5.3+. This keeps us on the LTS patch track without manual updates
+#     blocking bugfixes.
+#   - psycopg2-binary is the PostgreSQL adapter. The "-binary" variant bundles
+#     its own libpq, so no system PostgreSQL client library is required at
+#     build time. For production, prefer the non-binary psycopg2 built against
+#     your system's libpq.
+# =============================================================================
+
+# Django 5.2 LTS — long-term support, recommended for new projects in 2025/2026
+Django~=5.2
+
+# PostgreSQL adapter — required when DB=postgres
+# psycopg2-binary bundles libpq; suitable for development containers
+psycopg2-binary~=2.9
+
+# MySQL
+mysqlclient~=2.2

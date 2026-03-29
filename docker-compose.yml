@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# docker-compose.yml — Django Starter
+#
+# DATABASE SWITCHING — two mechanisms work together:
+#
+#   1. .env file (copied from .env.example):
+#        DB=postgres   → Django uses PostgreSQL
+#        DB=sqlite     → Django uses SQLite (default)
+#
+#   2. Compose profiles — controls WHICH services Docker starts:
+#        --profile postgres  → starts the "web" + "db" services
+#        (no profile)        → starts only "web" (SQLite needs no container)
+#
+# Example commands:
+#   PostgreSQL:  docker compose --profile postgres up
+#   SQLite:      docker compose up
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Web service (Django) ────────────────────────────────────────────────────
+  web:
+    build: .                          # Build from the Dockerfile in this directory
+    ports:
+      - "8000:8000"                   # Expose Django dev server to the host
+    volumes:
+      - ./src:/app/src                    # Live-mount source so edits apply instantly
+      - venv_data:/app/.venv          # Persist the venv across container restarts
+    env_file:
+      - .env                          # Read DB, SECRET_KEY, etc. from .env
+    depends_on:
+      postgres:
+        condition: service_healthy    # If "db" is running, wait until it's healthy
+        required: false               # If "db" is NOT started (sqlite mode), skip — no error
+      mysql:
+        condition: service_healthy
+        required: false              # Same logic for MySQL — only wait if the service is started 
+
+   # ── MySQL service ───────────────────────────────────────────────────────
+  mysql:
+    build: ./docker/mysql
+    profiles:
+      - mysql
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-django_db}
+      MYSQL_USER: ${DB_USER:-django_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-django_password}
+      # ROOT_PASSWORD é obrigatório pela imagem oficial do MySQL mesmo que
+      # você nunca use o root diretamente na aplicação.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-django_root_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # mysqladmin ping verifica se o servidor está aceitando conexões.
+      # A flag --silent suprime a saída para não poluir os logs do Compose.
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${DB_USER:-django_user} -p${DB_PASSWORD:-django_password} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s  # MySQL demora um pouco mais que o Postgres para iniciar
+
+   # ── PostgreSQL service ───────────────────────────────────────────────────────
+  postgres:
+    build: ./docker/postgres
+    profiles:
+      - postgres                      # Only starts when: docker compose --profile postgres up
+    environment:
+      POSTGRES_DB: ${DB_NAME:-django_db}
+      POSTGRES_USER: ${DB_USER:-django_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-django_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # Persist DB data between restarts
+    healthcheck:
+      # pg_isready exits 0 when PostgreSQL is accepting connections.
+      # Compose will not start "web" until this passes (when profile is active).
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-django_user} -d ${DB_NAME:-django_db}"]
+      interval: 5s      # Check every 5 seconds
+      timeout: 5s       # Give up on a single check after 5 seconds
+      retries: 10       # Try up to 10 times before marking as unhealthy
+      start_period: 10s # Grace period at startup before checks count against retries
+
+volumes:
+  postgres_data:
+  mysql_data:
+  venv_data:
