@@ -27,9 +27,6 @@ else
     PROFILE_FLAG=""
 fi
 
-# echo "🚦 Checking -> SU=$SU / PROFILE=${PROFILE_FLAG:-$DB}"
-
-
 # Wait for the Django App's container to be ready (race conditions prevention)
 MAX_RETRIES=10
 ATTEMPT=0

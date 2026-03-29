@@ -10,6 +10,7 @@ Se você nunca usou Git antes, este guia é para você. Ele explica o que é o G
 2. [Conceitos essenciais em linguagem simples](#2-conceitos-essenciais-em-linguagem-simples)
 3. [O fluxo mínimo de contribuição](#3-o-fluxo-mínimo-de-contribuição)
 4. [Tabela de comandos](#4-tabela-de-comandos)
+5. [Git bash + VSCode](#5-git-bash--vscode)
 
 ---
 
@@ -243,6 +244,11 @@ Mude para `main` usando o dropdown **"Current Branch"**. Clique em **"Fetch orig
 | Ver histórico de commits | `git log --oneline` | `git log --oneline` |
 | Descartar mudanças não preparadas | `git restore <arquivo>` | `git restore <arquivo>` |
 | Tirar arquivo do staging | `git restore --staged <arquivo>` | `git restore --staged <arquivo>` |
+
+---
+
+## 5. Git bash + VSCode
+Ao instalar o Git, o Git Bash vem junto. Muitos scripts que facilitam lidar com Docker e fazer a interface entre ele e os comandos Django a serem executados dentro do container, dependem do bash. Apesar de Windows não ter um meio mais simples de executar bash,  **[aqui há um guia de como usar o Git Bash no terminal integrado do VS Code](./guia-git-bash-vscode.md)** para facilitar o uso durante o desenvolvimento.
 
 ---
 

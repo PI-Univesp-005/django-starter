@@ -79,11 +79,11 @@ Nessa versão, exagerei no número de bancos de dados possíveis para a mesma ap
 
 Este projeto usa uma arquitetura Docker com três componentes.
 
-O **`Dockerfile`** define o ambiente base: Python 3.13 em uma imagem Debian (distribuição linux) enxuta, com pacotes do sistema para o cliente PostgreSQL e para a aplicação Django. Ele copia o código-fonte e o script `entrypoint.sh`, e declara a porta 3333.
+- O **`Dockerfile`** define o ambiente base: Python 3.13 em uma imagem Debian (distribuição linux) enxuta, com pacotes do sistema para os clientes de MySQL e PostgreSQL, e também da aplicação Django. Ele copia o código-fonte e o script `entrypoint.sh`, e declara a porta 3333.
 
-O **`docker-compose.yml`** orquestra de um até dois serviços. O serviço `web` monta o container a partir do Dockerfile principal (no diretório raiz) e roda a aplicação Django. Se apenas ele rodar, o Django usará o `sqlite` como banco de dados. Mas, opcionalmente, é possível rodar perfis alternados, com o serviço `postgres` rodando a imagem oficial `postgres:17` ou, em vez deste, o serviço `mysql`, rodando a imagem oficial `mysql:8`. Ambos estão associado ao seu respectivo **profile** (`postgres` ou `mysql`) e só iniciam quando explicitamente chamados. A declaração `depends_on` do serviço `web` com `required: false` significa: "se `postgres` ou `mysql` estiverem rodando, espere o healthcheck passar (isto é, aguarde o banco estar disponível para conexão) antes de iniciar a aplicação Django. No caso de nenhum dos dois estar rodando, inicie imediatamente (com SQLite)".
+- O **`docker-compose.yml`** orquestra de um até dois serviços. O serviço `web` monta o container a partir do Dockerfile principal (no diretório raiz) e roda a aplicação Django. Se apenas ele rodar, o Django usará o `sqlite` como banco de dados. Mas, opcionalmente, é possível rodar perfis alternados, com o serviço `postgres` rodando a imagem oficial `postgres:17` ou, em vez deste, o serviço `mysql`, rodando a imagem oficial `mysql:8`. Ambos estão associado ao seu respectivo **profile** (`postgres` ou `mysql`) e só iniciam quando explicitamente chamados. A declaração `depends_on` do serviço `web` com `required: false` significa: "se `postgres` ou `mysql` estiverem rodando, espere o healthcheck passar (isto é, aguarde o banco estar disponível para conexão) antes de iniciar a aplicação Django. No caso de nenhum dos dois estar rodando, inicie imediatamente (com SQLite)".
 
-O **`entrypoint.sh`** é o script executado dentro do container a cada inicialização. Ele cria o ambiente virtual Python se ainda não existir (persistido num volume Docker nomeado), instala as dependências, opcionalmente aguarda o MySQL ou PostgreSQL com um loop de retentativas de conexão e, após conectado, roda as migrations do Django para, por fim, iniciar o servidor web.
+- O **`entrypoint.sh`** é o script executado dentro do container a cada inicialização. Ele cria o ambiente virtual Python se ainda não existir (persistido num volume Docker nomeado), instala as dependências, opcionalmente aguarda o MySQL ou PostgreSQL com um loop de retentativas de conexão e, após conectado, roda as migrations do Django para, por fim, iniciar o servidor web.
 
 A seleção do banco de dados é controlada por dois mecanismos que precisam estar de acordo:
 ```
@@ -92,11 +92,26 @@ DB=mysql no .env   ←→   docker compose --profile mysql up
 DB=sqlite   no .env   ←→   docker compose up
 ```
 
-Se eles divergirem o Django tentará se conectar a um host que não está rodando no momento (seu container não foi subido) e falhará com erro de conexão. Por conta disso, é necessário sempre manter um único trecho do arquivo `.env` descomentado, como exemplificado no [.env.example](.env.example) que roda a aplicação Django conectando com o sqlite (padrão). Quando esse erro acontece, o script [`entrypoint.sh`](./entrypoint.sh) ficará imprimindo na tela as novas tentativas de conexão infinitamente. Segue um exemplo abaixo, onde o `.env` estava configurado para o MySQL, mas o perfil do `docker compose` selecionado foi o `postgres`:
+Use o script [`./compose`](./compose) para sempre rodar o docker compose no perfil que está configurado no `.env`. Todos os comandos do guia-docker que envolvem o `docker compose` devem ser rodados com este script, para garantir consistência com o banco selecionado. Exemplo:
+- `./compose up`
+- `./compose up --build`
+- `./compose up --build --force-recreate`
+- `./compose down`
+- `./compose down -v`
+- `./compose logs -f`
+- `./compose logs -f`
+- `./compose logs -f --tail 50 web`
 
-<div align="center" style="width: 100%;margin-top:-6px";>
-  <img src="docs/db_connection_failure.png" style="width: 90%; margin: 0 5%" />
-</div>
+**...**
+
+O mesmo value para os comandos do django através do `manage.py`. Para garantir que ele rode no container, use o script [`./manage`](./manage). Ele só funciona se o container da aplicação Django estiver rodando. Exemplos:
+- `./manage makemigrations`
+- `./manage createsuperuser`
+
+E, apesar de não ser necessário, deve funcionar até mesmo o comando de iniciar o server que é chamado pelo [`entrypoint.sh`](./entrypoint.sh) atavés do [`Dockerfile`](./Dockerfile):
+- `./manage runserver runserver 0.0.0.0:3333`
+
+**...**
 
 ---
 
@@ -135,13 +150,19 @@ cp .env.example .env
 
 Abra o `.env` em qualquer editor de texto, caso queira mudar os valores.
 
-### Passo 3.a — Rodar com SQLite (mais simples, sem banco externo)
+### Passo 3 — Rodar a Aplicação
 
-O SQLite é um banco de dados baseado em arquivos, embutido no Python/Django. Nenhum serviço de banco de dados separado é necessário. O arquivo de banco é criado automaticamente dentro do container.
+Certfique-se que o git foi instalado e você tem acesso ao git bash. É possível [integrá-lo ao VSCode](docs/guia-git-bash-vscode.md), para tornar a rotina mais fluida. Uma vez garantindo que a linha de comando é o git bash, para gerenciar o container (subir a aplicação, derrubá-la, etc), as opções são:
 
 ```bash
-# Certifique-se de que o .env tem: DB=sqlite (exige acesso root no linux - sudo)
-docker compose up
+# Para e remove o container web e de bancos de dados, se estiverem rodando (o comando se aplicará no perfil do docker compose definido na vriável DB do .env)
+./compose down
+# O mesmo que o anterior, mas apaga os volumes (limpa o banco de dados)
+./compose down -v
+# Abre um shell dentro do container web (linha de comando dentro do Docker)
+./compose exec web bash 
+# Exibe os logs dos containers em tempo real
+./compose logs -f
 ```
 
 Acesse [http://localhost:3333](http://localhost:3333) e você verá algo como:
@@ -155,40 +176,9 @@ Acesse [http://localhost:3333](http://localhost:3333) e você verá algo como:
 }
 ```
 
-### Passo 3.b — Rodar com MySQL
+### Trocando de bancos de dados
 
-Antes de rodar, certifique-se de que o `.env` tem estes valores:
-
-```
-DB=mysql
-DB_NAME=django_db
-DB_USER=django_user
-DB_PASSWORD=django_password
-DB_HOST=mysql
-DB_PORT=3306
-```
-Em seguida, inicie ambos os serviços com o profile `mysql`:
-
-```bash
-docker compose --profile mysql up
-```
-
-Acesse [http://localhost:3333](http://localhost:3333) e você verá algo como:
-
-```json
-{
-  "id": "b3cb56e1-6aea-4e5e-aa20-ac5c53cdb227",
-  "message": "Hello, Django!",
-  "created_at": "2026-03-28T16:47:08.390Z",
-  "db_backend": "mysql"
-}
-```
-
-O container `mysql` vai iniciar primeiro. O container `web` aguarda até o healthcheck do PostgreSQL passar (estar disponível para conexão), depois roda as migrations e inicia o Django.
-
-### Passo 3.c — Rodar com PostgreSQL
-
-Antes de rodar, certifique-se de que o `.env` tem estes valores:
+Para trocar de SQLite para PostgreSQL (ou vice-versa), pare os containers com `Ctrl+C` ou `docker compose down`, comente todos os valores do banco atual no `.env`, descomente o do novo banco que deseja rodar pronto. Por exemplo, ao rodar a aplicação com o banco Postgres, as únicas linhas não comentadas do `./env` seriam as seguintes:
 
 ```
 DB=postgres
@@ -198,51 +188,14 @@ DB_PASSWORD=django_password
 DB_HOST=postgres
 DB_PORT=5432
 ```
-Em seguida, inicie ambos os serviços com o profile `postgres`:
 
-```bash
-docker compose --profile postgres up
-```
+Apesar do script `./compose` facilitar e sempre executar o profile Docker do banco de dados selecionado no `./env`, na verdade, isso está sendo abstraído. Por debaixo dos panos, tanto o `.env` quanto o profile do Compose precisam mudar juntos, mesmo que`.env` e profiles sejam coisas diferentes que controlam camadas distintas.
 
-Acesse [http://localhost:3333](http://localhost:3333) e você verá algo como:
+O Docker Compose controla a *infraestrutura*: quais containers o Docker inicia. A variável `.env` controla o *comportamento da aplicação*: qual driver de banco (biblioteca Python usada na conexão) o Django usa e onde ele se conecta. Mudar um sem o outro cria uma incompatibilidade que o uso do `./compose` evita.
 
-```json
-{
-  "id": "b3cb56e1-6aea-4e5e-aa20-ac5c53cdb227",
-  "message": "Hello, Django!",
-  "created_at": "2026-03-28T16:47:08.390Z",
-  "db_backend": "postgresql"
-}
-```
+<blockquote style="font-size:9.5pt;margin-bottom:20px;padding: 8px 6px 1px;font-weight:350;">
 
-O container `postgres` vai iniciar primeiro. O container `web` aguarda até o healthcheck do PostgreSQL passa (estar disponível para conexão), depois roda as migrations e inicia o Django.
-
-### Trocando entre bancos de dados
-
-Para trocar de SQLite para PostgreSQL (ou vice-versa), pare os containers com `Ctrl+C` ou `docker compose down`, comente os valores do banco atual no `.env`, des moente o do novo banco que deseja rodar e reinicie com o comando indicado para cada caso, acima. **Por que tanto o `.env` quanto o profile do Compose precisam mudar?** Eles controlam camadas diferentes. O profile do Compose controla a *infraestrutura*: quais containers o Docker inicia. A variável `.env` controla o *comportamento da aplicação*: qual driver de banco (biblioteca Python usada na conexão) o Django usa e onde ele se conecta. Mudar um sem o outro cria uma incompatibilidade.
-
-### Comandos úteis
-<sup>Gerenciando os containers.</sup>
-
-```bash
-# Para e remove os containers web apenas (mantém os dados no SQLite, para remover é necessário adicionar as flags --build --force-recreate)
-docker compose down
-
-# Para e remove os containers web e mysql (mantém os dados no MySQL)
-docker compose --profile mysql down 
-# Para e remove os containers web e mysql, removendo volumes (deletando os dados do MySQL)
-docker compose --profile mysql down -v 
-
-# Para e remove os containers web e postgres (mantém os dados no PostgreSQL)
-docker compose --profile postgres down
-# Para e remove os containers web e postgres, removendo volumes (deletando os dados do PostgreSQL)
-docker compose --profile postgres down -v 
-
-docker compose exec web bash # Abre um shell dentro do container web (linha de comando dentro do Docker)
-docker compose logs -f       # Exibe os logs dos containers em tempo real)
-```
-
-OBS: Caso esteja rodando o banco SQLite e queira recuperar o arquivo do banco de dados (SQLite é baseado em arquivos), basta estar com o docker rodando e executar, no diretório raiz: `docker compose cp web:/app/db.sqlite3 ./docker/sqlite/db.sqlite3` e ele será copiado no diretório/pasta: **[./docker/sqlite/](./docker/sqlite/)**.
+**OBS**: Caso esteja rodando o banco SQLite e queira recuperar o arquivo do banco de dados (SQLite é baseado em arquivos), basta estar com o docker rodando e executar, no diretório raiz: `./compose cp web:/app/db.sqlite3 ./docker/sqlite/db.sqlite3` e ele será copiado no diretório/pasta: **[./docker/sqlite/](./docker/sqlite/)**.</blockquote>
 
 <blockquote style="font-size:11.5pt;padding: 10px 6px;font-weight:575;">⚠️ Mais detalhes e comandos no <a href="docs/guia-docker.md">guia de Docker</a></blockquote>
 
@@ -252,55 +205,60 @@ OBS: Caso esteja rodando o banco SQLite e queira recuperar o arquivo do banco de
 
 ```
 ./django-starter
-├── docker/
-│   ├── mysql/
-│   │   ├── Dockerfile
-│   │   └── init.sql
-│   ├── postgres/
-│   │   ├── Dockerfile
-│   │   └── init.sql
-│   └── sqlite/
+│
+├── README.md
+├── requirements.txt
+├── manage
+├── compose
 ├── docker-compose.yml
 ├── Dockerfile
-├── docs/
-│   ├── guia-django.md
-│   ├── guia-docker.md
-│   ├── guia-git.md
-│   ├── linux-docker-install.md
-│   ├── macOS-docker-install.md
-│   └── windows-docker-install.md
 ├── entrypoint.sh
-├── README.md
-├── requirements.txt # Dependências do Python (Django, bibliotecas para conectar nos bancos de dados, etc)
-└── src/
-    ├── config/
-    │   ├── asgi.py
-    │   ├── settings.py
-    │   ├── urls.py
-    │   └── wsgi.py
-    ├── core/
-    │   ├── admin.py
-    │   ├── apps.py
-    │   ├── __init__.py
-    │   ├── migrations/
-    │   │   ├── 0001_test.py
-    │   │   └── __init__.py
-    │   ├── models.py
-    │   ├── urls.py
-    │   └── views.py
-    └── manage.py
+│
+├── src
+│   ├── config
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── core
+│   │   ├── migrations
+│   │   │   ├── 0001_test.py
+│   │   │   └── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   └── manage.py
+│
+├── docker
+│   ├── mysql
+│   │   ├── Dockerfile
+│   │   └── init.sql
+│   ├── postgres
+│   │   ├── Dockerfile
+│   │   └── init.sql
+│   └── sqlite
+│
+└── docs
+    ├── db_connection_failure.png
+    ├── guia-django.md
+    ├── guia-docker.md
+    ├── guia-git-bash-vscode.md
+    ├── guia-git.md
+    ├── linux-docker-install.md
+    ├── macOS-docker-install.md
+    └── windows-docker-install.md
 
-10 directories, 28 files
+10 directories, 32 files
 ```
 ---
 
 ## Pontos Pendentes (TODO)
-Essa primeira versão do projeto ainda não resolve o problema de rodar o `manage.py` localmente (utilitário de linha de comando do Django), para ações que visam interferir na estrutura da repo, como na criação de migrations, criar usuários admin para o painel administrativo do Django, etc. Rodar o servidor no Docker está ok, mas sem um mínimo alinhamento local (versão do python correta, organização do setup do `venv` do python e instalação das dependências do `requirements.txt`), não é possível usar o `manage.py`. Para abordar isso, é necessário:
-
-- [ ] Primeiro revisar e garantir que todo mundo conseguiu rodar em cada máquina a versão atual, antes de novas tarefas.
-
+- [x] <s> Resolver a integração entre o manage.py do container e da repo (rodar migrations e criar super users para página admin lá (no container), criar migrations que reflitam aqui (no projeto), etc </s>
 - [x] <s>Criar um shell script para setar o venv só caso necessário, instalar dependências e expor comandos mais simples para chamar o manage.py</s>
 
-- [ ] Validar em uma branch minha, criando novas migrations de teste através desse script, antes de subir a Pull Request.
+- [x] <s> Validar em uma branch minha, criando novas migrations de teste através desse script, antes de subir a Pull Request. </s>
 
-- [ ] Revisar se todo mundo conseguiu criar novas migrations com o novo shell script, em seus respectivos ambientes (e adaptar isso para Windows)
+- [ ] Revisar se todo mundo conseguiu rodar os shell scripts e subir o Docker compose e propor um meetings para irmos caso a caso.
