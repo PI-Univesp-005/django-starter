@@ -22,7 +22,7 @@ services:
   web:
     build: .                          # Build from the Dockerfile in this directory
     ports:
-      - "8000:8000"                   # Expose Django dev server to the host
+      - "${PORT}:${PORT}"                   # Expose Django dev server to the host
     volumes:
       - ./src:/app/src                    # Live-mount source so edits apply instantly
       - venv_data:/app/.venv          # Persist the venv across container restarts

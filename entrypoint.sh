@@ -2,29 +2,31 @@
 set -e
 
 VENV_DIR="/app/.venv"
+PFX="⚙️  [\033[3mentrypoint.sh\033[0m]:"
 
 # ── Step 1: Virtual environment ───────────────────────────────────────────────
 if [ ! -f "$VENV_DIR/bin/activate" ]; then
-    echo "🐍 Creating virtual environment at $VENV_DIR ..."
+    printf "$PFX 🐍 \033[1mCreating virtual environment at $VENV_DIR ...\033[0m\n"
     python -m venv "$VENV_DIR"
-    echo "✅ Virtual environment created."
+    printf "$PFX ✅ \033[1mVirtual environment created.\033[0m\n"
 else
-    echo "✅ Virtual environment already exists."
+    printf "$PFX ✅ \033[1mVirtual environment already exists.\033[0m\n"
 fi
 
 # ── Step 2: Dependencies ──────────────────────────────────────────────────────
-echo "📦 Installing / verifying Python dependencies ..."
+printf "$PFX 📦 \033[1mInstalling / verifying Python dependencies ...\033[0m\n"
 source "$VENV_DIR/bin/activate"
 pip install --quiet --upgrade pip
 # /requirements.txt is outside /app so the volume mount cannot shadow it
 pip install --quiet -r requirements.txt
-echo "✅ Dependencies up to date."
+printf "$PFX ✅ \033[1mDependencies up to date.\033[0m\n"
 
 # ── Step 3: Wait for the database ────────────────────────────────────────────
 DB="${DB:-sqlite}"
+PORT="${PORT:-3333}"
 
 if [ "$DB" = "postgres" ]; then
-    echo "🐘 DB=postgres — waiting for PostgreSQL..."
+    printf "$PFX 🐘 \033[1mDB=postgres — waiting for PostgreSQL...\033[0m\n"
     MAX_RETRIES=30
     RETRY_INTERVAL=2
     attempt=0
@@ -45,16 +47,16 @@ except Exception:
 " 2>/dev/null; do
         attempt=$(( attempt + 1 ))
         if [ "$attempt" -ge "$MAX_RETRIES" ]; then
-            echo "❌ PostgreSQL did not become ready. Aborting."
+            printf "$PFX ❌ \033[1mPostgreSQL did not become ready. Aborting.\033[0m\n"
             exit 1
         fi
-        echo "   Attempt $attempt/$MAX_RETRIES — retrying in ${RETRY_INTERVAL}s..."
+        printf "$PFX   \033[1m Attempt $attempt/$MAX_RETRIES — retrying in ${RETRY_INTERVAL}s...\033[0m\n"
         sleep "$RETRY_INTERVAL"
     done
-    echo "✅ PostgreSQL is ready."
+    printf "$PFX ✅ \033[1mPostgreSQL is ready.\033[0m\n"
 
 elif [ "$DB" = "mysql" ]; then
-    echo "🐬 DB=mysql — waiting for MySQL..."
+    printf "$PFX 🐬 \033[1mDB=mysql — waiting for MySQL...\033[0m\n"
     MAX_RETRIES=30
     RETRY_INTERVAL=2
     attempt=0
@@ -75,25 +77,25 @@ except Exception:
 " 2>/dev/null; do
         attempt=$(( attempt + 1 ))
         if [ "$attempt" -ge "$MAX_RETRIES" ]; then
-            echo "❌ MySQL did not become ready. Aborting."
+            printf "$PFX ❌ \033[1mMySQL did not become ready. Aborting.\033[0m\n"
             exit 1
         fi
-        echo "   Attempt $attempt/$MAX_RETRIES — retrying in ${RETRY_INTERVAL}s..."
+        printf "$PFX   \033[1m Attempt $attempt/$MAX_RETRIES — retrying in ${RETRY_INTERVAL}s...\033[0m\n"
         sleep "$RETRY_INTERVAL"
     done
-    echo "✅ MySQL is ready."
+    printf "$PFX ✅ \033[1mMySQL is ready.\033[0m\n"
 
 else
-    echo "🗄️  DB=sqlite — no external service to wait for."
+    printf "$PFX 🗄️ \033[1m DB=sqlite — no external service to wait for.\033[0m\n"
 fi
 
 # ── Step 4: Migrate and serve ─────────────────────────────────────────────────
-echo "🔄 Running database migrations ..."
+printf "$PFX 🔄 \033[1mRunning database migrations ...\033[0m\n"
 python src/manage.py migrate --noinput
 
-echo ""
-echo "🚀 Starting Django development server on http://0.0.0.0:8000 ..."
-echo "   Database backend: $DB"
-echo ""
+printf "\n\033[3mDone, ready to start the server...\033[0m\n\n"
+printf "$PFX 🚀 \033[1mStarting Django development server on\033[0m http://0.0.0.0:$PORT ...\n"
+printf "$PFX 🛢️  \033[1mDatabase backend:\033[0m $DB\n"
+printf "\n"
 
-exec python src/manage.py runserver 0.0.0.0:8000
+exec python src/manage.py runserver 0.0.0.0:$PORT 1> /dev/null

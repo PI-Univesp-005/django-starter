@@ -48,6 +48,8 @@ Os três objetivos centrais do Django são:
 | **Signals** | Sistema de eventos desacoplado: dispare e escute acontecimentos em qualquer parte da aplicação. |
 | **Segurança** | CSRF, XSS, SQL injection, clickjacking e HTTPS enforcement — ativos por padrão. |
 
+O Django também facilita a criação de migrations e usuários admin para o gerencimanto da aplicação. Esses comandos rodados através do `manage.py` ainda não estão disponíveis localmente, apenas no **container**. Eles dependem de que o venv e python estejam alinhados com o que roda na versão do docker para serem configurados e executados localmente, isto já está [listado como tarefa futura](../README.md#pontos-pendentes-todo).
+
 ---
 
 ## 3. Melhores casos de uso
