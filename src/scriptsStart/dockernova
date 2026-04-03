@@ -1,0 +1,4 @@
+docker run -itd --name "{O que desejar}" -p 3333:3333 my-custom-django
+
+-- com log na tela
+docker run --name "{O que desejar}" -p 3333:3333 my-custom-django 
