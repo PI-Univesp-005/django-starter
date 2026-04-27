@@ -131,7 +131,7 @@ else:
             "NAME": "/app/db.sqlite3",
         }
     }
-
+AUTH_USER_MODEL = 'core.Usuario'
 
 # ── Password validation ───────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
