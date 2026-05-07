@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+
+{% block title %}Correção de Estoque — Estoque+Validade{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
+  <div class="topbar-title">Correção de estoque</div>
+  <span class="role-badge role-adm">ADM</span>
+</div>
+
+<div class="alert-box alert-warning">
+  Atenção: toda correção fica registrada no histórico para auditoria.
+</div>
+
+<div class="card" style="padding:0.75rem 1rem;">
+  {% for produto in produtos %}
+  <div class="product-row">
+    <div class="prod-img">{{ produto.emoji }}</div>
+    <div class="prod-info">
+      <div class="prod-name">{{ produto.nome }}</div>
+      <div class="prod-code">{{ produto.filial.nome }} · {{ produto.quantidade_total }} UN</div>
+    </div>
+    <a href="{% url 'estoque_detalhe' produto.pk %}" style="width:30px;height:30px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;">✏️</a>
+  </div>
+  {% empty %}
+  <div class="hint" style="padding:1rem 0;">Nenhum produto cadastrado.</div>
+  {% endfor %}
+</div>
+
+<div class="hint">Toque em ✏️ para corrigir a quantidade manualmente</div>
+{% endblock %}

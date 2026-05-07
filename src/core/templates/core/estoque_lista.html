@@ -1,0 +1,62 @@
+{% extends "core/base.html" %}
+
+{% block title %}Estoque — Estoque+Validade{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
+  <div class="topbar-title">Movimentação de estoque</div>
+  <span class="role-badge role-{% if user.perfil == 'gerente' %}adm{% elif user.perfil == 'funcionario_lider' %}lider{% else %}func{% endif %}">
+    {% if user.perfil == 'gerente' %}ADM{% elif user.perfil == 'funcionario_lider' %}Líder{% else %}Funcionário{% endif %}
+  </span>
+</div>
+
+<!-- Busca -->
+<form method="get">
+  <div style="display:flex;align-items:center;gap:8px;background:#f5f5f5;border-radius:10px;padding:0 12px;margin-bottom:12px;">
+    <span style="color:#aaa;">🔍</span>
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar produto..." style="border:none;background:transparent;padding:9px 4px;flex:1;font-size:14px;outline:none;" />
+  </div>
+
+  <!-- Filtros rápidos -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+    <a href="{% url 'estoque_lista' %}" style="padding:7px 13px;border-radius:20px;border:1.5px solid {% if not request.GET.filtro %}#1a1a2e{% else %}#ddd{% endif %};background:{% if not request.GET.filtro %}#1a1a2e{% else %}#fff{% endif %};color:{% if not request.GET.filtro %}#fff{% else %}#555{% endif %};font-size:12px;font-weight:600;text-decoration:none;">Todos</a>
+    <a href="?filtro=margem" style="padding:7px 13px;border-radius:20px;border:1.5px solid {% if request.GET.filtro == 'margem' %}#e67e22{% else %}#ddd{% endif %};background:{% if request.GET.filtro == 'margem' %}#fef9e7{% else %}#fff{% endif %};color:{% if request.GET.filtro == 'margem' %}#e67e22{% else %}#555{% endif %};font-size:12px;font-weight:600;text-decoration:none;">⏰ Margem de promoção</a>
+    <a href="?filtro=amanha" style="padding:7px 13px;border-radius:20px;border:1.5px solid {% if request.GET.filtro == 'amanha' %}#e74c3c{% else %}#ddd{% endif %};background:{% if request.GET.filtro == 'amanha' %}#fdecea{% else %}#fff{% endif %};color:{% if request.GET.filtro == 'amanha' %}#e74c3c{% else %}#555{% endif %};font-size:12px;font-weight:600;text-decoration:none;">🔴 Vai vencer amanhã</a>
+  </div>
+</form>
+
+<!-- Lista de produtos -->
+<div class="card" style="padding:0.75rem 1rem;">
+  {% for produto in produtos %}
+  <div class="product-row">
+    <div class="prod-img">{{ produto.emoji }}</div>
+    <div class="prod-info">
+      <div class="prod-name">{{ produto.nome }}</div>
+      <div class="prod-code">{{ produto.codigo_barras }} · {{ produto.filial.nome }}</div>
+    </div>
+    <div style="text-align:right;margin-right:4px;">
+      <div style="font-size:14px;font-weight:700;color:#1a1a2e;">{{ produto.quantidade_total }} UN</div>
+      {% if produto.lote_mais_urgente %}
+        {% if produto.lote_mais_urgente.dias_para_vencer == 0 %}
+          <span class="badge badge-red">vence hoje</span>
+        {% elif produto.lote_mais_urgente.dias_para_vencer == 1 %}
+          <span class="badge badge-red">amanhã</span>
+        {% elif produto.lote_mais_urgente.dias_para_vencer <= produto.dias_margem_promocao %}
+          <span class="badge badge-orange">⏰ {{ produto.lote_mais_urgente.dias_para_vencer }} dias</span>
+        {% endif %}
+      {% endif %}
+    </div>
+    <a href="{% url 'estoque_detalhe' produto.pk %}" style="width:30px;height:30px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;">›</a>
+  </div>
+  {% empty %}
+  <div class="hint" style="padding:1rem 0;">Nenhum produto encontrado.</div>
+  {% endfor %}
+</div>
+
+{% if user.perfil == 'funcionario_lider' or user.perfil == 'gerente' %}
+<a href="{% url 'cadastro_produto' %}" class="btn btn-outline">+ Cadastrar novo produto</a>
+{% endif %}
+
+<div class="hint">Toque em › para ver lotes e movimentar estoque</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+
+{% block title %}Login — Estoque+Validade{% endblock %}
+
+{% block content %}
+<div style="text-align:center; padding: 1.5rem 0 0.5rem;">
+  <div style="font-size:22px; font-weight:700; color:#1a1a2e;">Estoque+Validade</div>
+  <div style="font-size:13px; color:#888; margin-top:4px;">Mercearia Japonesa — Jaguaré</div>
+</div>
+
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" name="username" placeholder="seu nome de usuário" required />
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" name="password" placeholder="••••••••" required />
+    </div>
+    <button type="submit" class="btn btn-dark">Entrar</button>
+  </form>
+</div>
+
+<div class="hint">PI UNIVESP 2026 — Grupo PI-Univesp-005</div>
+{% endblock %}

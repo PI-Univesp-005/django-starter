@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+
+{% block title %}Cadastrar Produto — Estoque+Validade{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
+  <div class="topbar-title">Cadastrar / editar produto</div>
+  <span class="role-badge role-{% if user.perfil == 'gerente' %}adm{% else %}lider{% endif %}">
+    {% if user.perfil == 'gerente' %}ADM{% else %}Líder{% endif %}
+  </span>
+</div>
+
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start;">
+      <div class="prod-img" style="width:56px;height:56px;font-size:26px;border:2px dashed #ddd;">
+        {{ form.emoji.value|default:"📦" }}
+      </div>
+      <div class="field" style="flex:1;margin-bottom:0;">
+        <label>Emoji do produto</label>
+        {{ form.emoji }}
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nome do produto</label>
+      {{ form.nome }}
+    </div>
+
+    <div class="field">
+      <label>Código de barras</label>
+      {{ form.codigo_barras }}
+    </div>
+
+    <div class="field">
+      <label>Descrição</label>
+      {{ form.descricao }}
+    </div>
+
+    <div class="field">
+      <label>Margem de promoção (dias antes de vencer)</label>
+      {{ form.dias_margem_promocao }}
+    </div>
+
+    <button type="submit" class="btn btn-dark">Salvar produto</button>
+    {% if object %}
+    <a href="{% url 'deletar_produto' object.pk %}" class="btn btn-red">Excluir produto</a>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

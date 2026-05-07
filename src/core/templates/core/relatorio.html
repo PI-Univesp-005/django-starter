@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+
+{% block title %}Relatórios — Estoque+Validade{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
+  <div class="topbar-title">Relatórios</div>
+  <span class="role-badge role-adm">ADM</span>
+</div>
+
+<!-- Métricas -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
+    <div style="font-size:12px;color:#888;">Produtos em estoque</div>
+    <div style="font-size:26px;font-weight:700;color:#1a1a2e;margin-top:4px;">{{ total_produtos }}</div>
+  </div>
+  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
+    <div style="font-size:12px;color:#888;">Em promoção</div>
+    <div style="font-size:26px;font-weight:700;color:#e67e22;margin-top:4px;">{{ total_promocao }}</div>
+  </div>
+  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
+    <div style="font-size:12px;color:#888;">Vencem amanhã</div>
+    <div style="font-size:26px;font-weight:700;color:#e74c3c;margin-top:4px;">{{ total_amanha }}</div>
+  </div>
+  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
+    <div style="font-size:12px;color:#888;">Colocar em promoção</div>
+    <div style="font-size:26px;font-weight:700;color:#b7770d;margin-top:4px;">{{ total_colocar_promocao }}</div>
+  </div>
+</div>
+
+<!-- Próximos a vencer -->
+<div class="card">
+  <div class="card-title">Próximos a vencer — todos os produtos</div>
+  {% for lote in lotes_proximos %}
+  <div class="product-row">
+    <div class="prod-img">{{ lote.produto.emoji }}</div>
+    <div class="prod-info">
+      <div class="prod-name">{{ lote.produto.nome }}</div>
+      <div class="prod-code">Lote {{ lote.numero_lote|default:"—" }}</div>
+    </div>
+    {% if lote.dias_para_vencer == 0 %}
+      <span class="badge badge-red">hoje</span>
+    {% elif lote.dias_para_vencer == 1 %}
+      <span class="badge badge-red">amanhã</span>
+    {% elif lote.dias_para_vencer <= 7 %}
+      <span class="badge badge-red">{{ lote.dias_para_vencer }} dias</span>
+    {% else %}
+      <span class="badge badge-orange">{{ lote.dias_para_vencer }} dias</span>
+    {% endif %}
+  </div>
+  {% empty %}
+  <div class="hint" style="padding:1rem 0;">Nenhum lote próximo do vencimento.</div>
+  {% endfor %}
+</div>
+
+<!-- Colocar em promoção -->
+<div class="card">
+  <div class="card-title">Colocar em promoção</div>
+  {% for lote in lotes_colocar_promocao %}
+  <div class="product-row">
+    <div class="prod-img">{{ lote.produto.emoji }}</div>
+    <div class="prod-info">
+      <div class="prod-name">{{ lote.produto.nome }}</div>
+      <div class="prod-code">Lote {{ lote.numero_lote|default:"—" }} · {{ lote.dias_para_vencer }} dias</div>
+    </div>
+    <span class="badge" style="background:#f0edfb;color:#6c3483;">Pendente</span>
+  </div>
+  {% empty %}
+  <div class="hint" style="padding:1rem 0;">Nenhum lote pendente.</div>
+  {% endfor %}
+</div>
+{% endblock %}
