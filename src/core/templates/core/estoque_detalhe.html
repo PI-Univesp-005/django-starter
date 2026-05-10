@@ -8,13 +8,12 @@
   <div class="topbar-title">Atualizar estoque</div>
 </div>
 
-<!-- Cabeçalho do produto -->
 <div class="card">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
     <div class="prod-img" style="width:52px;height:52px;font-size:26px;">{{ produto.emoji }}</div>
     <div style="flex:1;">
       <div style="font-size:16px;font-weight:700;color:#1a1a2e;">{{ produto.nome }}</div>
-      <div style="font-size:12px;color:#888;">{{ produto.filial.nome }} · Cód. {{ produto.codigo_barras }}</div>
+      <div style="font-size:12px;color:#888;">Cód. {{ produto.codigo_barras }}</div>
     </div>
     <div style="text-align:right;">
       <div style="font-size:22px;font-weight:700;color:#1a1a2e;">{{ quantidade_total }} UN</div>
@@ -22,64 +21,54 @@
     </div>
   </div>
 
-  <!-- Tabela de lotes -->
-  <div class="card-title">Lotes em estoque</div>
+  <div class="card-title">Lotes cadastrados</div>
   <table class="lot-table">
     <tr>
+      <th></th>
       <th>Lote</th>
       <th>Validade</th>
-      <th>Qtd</th>
       <th>Vence em</th>
       <th>Status</th>
-      <th></th>
     </tr>
-    {% for lote in lotes %}
+    {% for item in lotes_info %}
     <tr>
-      <td>{{ lote.numero_lote|default:"—" }}</td>
-      <td>{{ lote.data_validade|date:"d/m/Y" }}</td>
-      <td>{{ lote.quantidade }} UN</td>
-      <td style="font-weight:600;color:{% if lote.dias_para_vencer <= 1 %}#c0392b{% elif lote.dias_para_vencer <= produto.dias_margem_promocao %}#b7770d{% else %}#1e8449{% endif %};">
-        {% if lote.dias_para_vencer == 0 %}hoje
-        {% elif lote.dias_para_vencer == 1 %}amanhã
-        {% else %}{{ lote.dias_para_vencer }} dias{% endif %}
+      <td>
+        <div style="display:flex;gap:4px;">
+          <a href="{% url 'editar_lote' item.lote.pk %}" style="padding:4px 8px;border-radius:7px;background:#e8f4fd;color:#2980b9;font-size:11px;font-weight:600;text-decoration:none;">✏️</a>
+          <a href="{% url 'deletar_lote' item.lote.pk %}" style="padding:4px 8px;border-radius:7px;background:#fdecea;color:#c0392b;font-size:11px;font-weight:600;text-decoration:none;">🗑</a>
+        </div>
+      </td>
+      <td>{{ item.lote.numero_lote|default:"—" }}</td>
+      <td>{{ item.lote.data_validade|date:"d/m/Y" }}</td>
+      <td style="font-weight:600;color:{% if item.dias <= 1 %}#c0392b{% elif item.dias <= produto.dias_margem_promocao %}#b7770d{% else %}#1e8449{% endif %};">
+        {% if item.dias <= 0 %}hoje
+        {% elif item.dias == 1 %}amanhã
+        {% else %}{{ item.dias }} dias{% endif %}
       </td>
       <td>
-        <form method="post" action="{% url 'atualizar_status_lote' lote.pk %}">
+        <form method="post" action="{% url 'atualizar_status_lote' item.lote.pk %}">
           {% csrf_token %}
           <select name="status" onchange="this.form.submit()" style="padding:4px 7px;border-radius:8px;border:1px solid #eee;font-size:11px;font-weight:600;background:#f9f9f9;outline:none;">
-            <option value="estoque" {% if lote.status == 'estoque' %}selected{% endif %}>Em estoque</option>
-            <option value="colocar_promocao" {% if lote.status == 'colocar_promocao' %}selected{% endif %}>Colocar em promoção</option>
-            <option value="promocao" {% if lote.status == 'promocao' %}selected{% endif %}>Em promoção</option>
-            <option value="vencido" {% if lote.status == 'vencido' %}selected{% endif %}>Vencido</option>
+            <option value="estoque" {% if item.lote.status == 'estoque' %}selected{% endif %}>Em estoque</option>
+            <option value="colocar_promocao" {% if item.lote.status == 'colocar_promocao' %}selected{% endif %}>Colocar em promoção</option>
+            <option value="promocao" {% if item.lote.status == 'promocao' %}selected{% endif %}>Em promoção</option>
+            <option value="vencido" {% if item.lote.status == 'vencido' %}selected{% endif %}>Vencido</option>
           </select>
         </form>
       </td>
-      <td>
-        <div style="display:flex;gap:6px;">
-          <a href="{% url 'editar_lote' lote.pk %}" style="padding:4px 10px;border-radius:7px;background:#e8f4fd;color:#2980b9;font-size:11px;font-weight:600;text-decoration:none;">✏️</a>
-          <a href="{% url 'deletar_lote' lote.pk %}" style="padding:4px 10px;border-radius:7px;background:#fdecea;color:#c0392b;font-size:11px;font-weight:600;text-decoration:none;">🗑</a>
-        </div>
-      </td>
     </tr>
     {% empty %}
-    <tr><td colspan="6" style="text-align:center;color:#aaa;padding:1rem;">Nenhum lote cadastrado.</td></tr>
+    <tr><td colspan="5" style="text-align:center;color:#aaa;padding:1rem;">Nenhum lote cadastrado.</td></tr>
     {% endfor %}
   </table>
 
-  <!-- Adicionar novo lote -->
   <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #eee;">
     <div class="card-title" style="margin-bottom:8px;">Adicionar novo lote</div>
     <form method="post" action="{% url 'adicionar_lote' produto.pk %}">
       {% csrf_token %}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <div class="field" style="margin-bottom:0;">
-          <label>Nº do lote (opcional)</label>
-          <input type="text" name="numero_lote" placeholder="Ex: 3030" />
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Quantidade</label>
-          <input type="number" name="quantidade" placeholder="Ex: 20" required />
-        </div>
+      <div class="field" style="margin-bottom:8px;">
+        <label>Nº do lote (opcional)</label>
+        <input type="text" name="numero_lote" placeholder="Ex: 3030" />
       </div>
       <div class="field" style="margin-bottom:8px;">
         <label>Data de validade</label>
@@ -90,19 +79,12 @@
   </div>
 </div>
 
-<!-- Movimentação -->
 <div class="card">
   <div class="card-title">Movimentar estoque</div>
-  <form method="post" action="{% url 'movimentar_estoque' produto.pk %}">
-    {% csrf_token %}
-    <div class="field">
-      <label>Quantidade</label>
-      <input type="number" name="quantidade" placeholder="Ex: 5" required />
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-      <button type="submit" name="tipo" value="entrada" class="btn btn-green" style="margin-bottom:0;">+ Entrada</button>
-      <button type="submit" name="tipo" value="saida" class="btn btn-red" style="margin-bottom:0;">− Saída</button>
-    </div>
-  </form>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+    <a href="{% url 'entrada_estoque' produto.pk %}" class="btn btn-green" style="text-align:center;text-decoration:none;">+ Entrada</a>
+    <a href="{% url 'saida_estoque' produto.pk %}" class="btn btn-red" style="text-align:center;text-decoration:none;">− Saída</a>
+  </div>
+  <a href="{% url 'zerar_estoque' produto.pk %}" class="btn btn-gray" style="text-align:center;text-decoration:none;">Zerar estoque</a>
 </div>
 {% endblock %}

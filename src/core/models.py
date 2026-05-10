@@ -55,6 +55,7 @@ class Produto(models.Model):
     emoji = models.CharField(max_length=10, default=EMOJI_PADRAO)
     descricao = models.TextField(blank=True)
     dias_margem_promocao = models.IntegerField(default=30)
+    quantidade_total = models.PositiveIntegerField(default=0)
     filial = models.ForeignKey(
         Filial,
         on_delete=models.CASCADE,
@@ -83,7 +84,6 @@ class Lote(models.Model):
         related_name='lotes',
     )
     numero_lote = models.CharField(max_length=50, blank=True)
-    quantidade = models.PositiveIntegerField(default=0)
     data_validade = models.DateField()
     status = models.CharField(
         max_length=20,

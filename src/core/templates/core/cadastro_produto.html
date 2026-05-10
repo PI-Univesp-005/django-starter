@@ -14,39 +14,29 @@
 <div class="card">
   <form method="post">
     {% csrf_token %}
-    <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start;">
-      <div class="prod-img" style="width:56px;height:56px;font-size:26px;border:2px dashed #ddd;">
-        {{ form.emoji.value|default:"📦" }}
-      </div>
-      <div class="field" style="flex:1;margin-bottom:0;">
-        <label>Emoji do produto</label>
-        {{ form.emoji }}
-      </div>
+    <div class="field">
+      <label>Emoji do produto</label>
+      <input type="text" name="emoji" value="{{ produto.emoji|default:'📦' }}" maxlength="10" />
     </div>
-
     <div class="field">
       <label>Nome do produto</label>
-      {{ form.nome }}
+      <input type="text" name="nome" value="{{ produto.nome|default:'' }}" required />
     </div>
-
     <div class="field">
       <label>Código de barras</label>
-      {{ form.codigo_barras }}
+      <input type="text" name="codigo_barras" value="{{ produto.codigo_barras|default:'' }}" />
     </div>
-
     <div class="field">
       <label>Descrição</label>
-      {{ form.descricao }}
+      <input type="text" name="descricao" value="{{ produto.descricao|default:'' }}" />
     </div>
-
     <div class="field">
       <label>Margem de promoção (dias antes de vencer)</label>
-      {{ form.dias_margem_promocao }}
+      <input type="number" name="dias_margem_promocao" value="{{ produto.dias_margem_promocao|default:30 }}" />
     </div>
-
     <button type="submit" class="btn btn-dark">Salvar produto</button>
-    {% if object %}
-    <a href="{% url 'deletar_produto' object.pk %}" class="btn btn-red">Excluir produto</a>
+    {% if produto %}
+    <a href="{% url 'deletar_produto' produto.pk %}" class="btn btn-red" style="margin-top:8px;display:block;text-align:center;text-decoration:none;">Excluir produto</a>
     {% endif %}
   </form>
 </div>

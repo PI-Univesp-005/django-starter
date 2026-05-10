@@ -24,5 +24,5 @@ class ProdutoAdmin(admin.ModelAdmin):
 
 @admin.register(Lote)
 class LoteAdmin(admin.ModelAdmin):
-    list_display = ['produto', 'numero_lote', 'quantidade', 'data_validade', 'status']
+    list_display = ['produto', 'numero_lote', 'data_validade', 'status']
     list_filter = ['status']
