@@ -21,7 +21,7 @@
       <div class="prod-name">{{ produto.nome }}</div>
       <div class="prod-code">{{ produto.filial.nome }} · {{ produto.quantidade_total }} UN</div>
     </div>
-    <a href="{% url 'estoque_detalhe' produto.pk %}" style="width:30px;height:30px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;">✏️</a>
+    <a href="{% url 'correcao_produto' produto.pk %}" style="width:30px;height:30px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;">✏️</a>
   </div>
   {% empty %}
   <div class="hint" style="padding:1rem 0;">Nenhum produto cadastrado.</div>

@@ -9,7 +9,6 @@
   <span class="role-badge role-adm">ADM</span>
 </div>
 
-<!-- Métricas -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
   <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
     <div style="font-size:12px;color:#888;">Produtos em estoque</div>
@@ -29,24 +28,23 @@
   </div>
 </div>
 
-<!-- Próximos a vencer -->
 <div class="card">
   <div class="card-title">Próximos a vencer — todos os produtos</div>
-  {% for lote in lotes_proximos %}
+  {% for item in lotes_proximos %}
   <div class="product-row">
-    <div class="prod-img">{{ lote.produto.emoji }}</div>
+    <div class="prod-img">{{ item.lote.produto.emoji }}</div>
     <div class="prod-info">
-      <div class="prod-name">{{ lote.produto.nome }}</div>
-      <div class="prod-code">Lote {{ lote.numero_lote|default:"—" }}</div>
+      <div class="prod-name">{{ item.lote.produto.nome }}</div>
+      <div class="prod-code">Lote {{ item.lote.numero_lote|default:"—" }} · val. {{ item.lote.data_validade|date:"d/m/Y" }}</div>
     </div>
-    {% if lote.dias_para_vencer == 0 %}
+    {% if item.dias <= 0 %}
       <span class="badge badge-red">hoje</span>
-    {% elif lote.dias_para_vencer == 1 %}
+    {% elif item.dias == 1 %}
       <span class="badge badge-red">amanhã</span>
-    {% elif lote.dias_para_vencer <= 7 %}
-      <span class="badge badge-red">{{ lote.dias_para_vencer }} dias</span>
+    {% elif item.dias <= 7 %}
+      <span class="badge badge-red">{{ item.dias }} dias</span>
     {% else %}
-      <span class="badge badge-orange">{{ lote.dias_para_vencer }} dias</span>
+      <span class="badge badge-orange">{{ item.dias }} dias</span>
     {% endif %}
   </div>
   {% empty %}
@@ -54,15 +52,14 @@
   {% endfor %}
 </div>
 
-<!-- Colocar em promoção -->
 <div class="card">
   <div class="card-title">Colocar em promoção</div>
-  {% for lote in lotes_colocar_promocao %}
+  {% for lote in lotes_colocar %}
   <div class="product-row">
     <div class="prod-img">{{ lote.produto.emoji }}</div>
     <div class="prod-info">
       <div class="prod-name">{{ lote.produto.nome }}</div>
-      <div class="prod-code">Lote {{ lote.numero_lote|default:"—" }} · {{ lote.dias_para_vencer }} dias</div>
+      <div class="prod-code">Lote {{ lote.numero_lote|default:"—" }} · val. {{ lote.data_validade|date:"d/m/Y" }}</div>
     </div>
     <span class="badge" style="background:#f0edfb;color:#6c3483;">Pendente</span>
   </div>
