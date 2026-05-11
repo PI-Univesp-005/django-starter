@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+
+{% block title %}Saída de Estoque — Estoque+Validade{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <a href="{% url 'estoque_detalhe' produto.pk %}" class="back-btn">← Voltar</a>
+  <div class="topbar-title">Saída de estoque</div>
+</div>
+
+<div class="card">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <div class="prod-img" style="width:52px;height:52px;font-size:26px;">{{ produto.emoji }}</div>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#1a1a2e;">{{ produto.nome }}</div>
+      <div style="font-size:12px;color:#888;">Estoque atual: {{ produto.quantidade_total }} UN</div>
+    </div>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label>Quantidade a remover</label>
+      <input type="number" name="quantidade" min="1" max="{{ produto.quantidade_total }}" placeholder="Ex: 5" required style="font-size:24px;font-weight:700;text-align:center;" />
+    </div>
+    <div class="hint" style="margin-bottom:12px;">Informe quantas unidades saíram do estoque</div>
+    <button type="submit" class="btn btn-red">Confirmar saída</button>
+  </form>
+  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn btn-outline">Cancelar</a>
+</div>
+{% endblock %}
