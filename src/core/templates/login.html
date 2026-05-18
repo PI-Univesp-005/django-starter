@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Estoque+Validade</title>
+    <style>
+        body { background-color: #e9ecef; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card-login { background-color: white; width: 400px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .cabecalho { background-color: #1a1a2e; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .badge { background-color: #e74c3c; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; }
+        .conteudo { padding: 30px; text-align: center; }
+        .titulo { color: #1a1a2e; margin: 0 0 5px 0; font-size: 1.8em; }
+        .subtitulo { color: #7f8c8d; font-size: 0.9em; margin-bottom: 25px; }
+        .grupo-formulario { text-align: left; margin-bottom: 15px; }
+        .grupo-formulario label { display: block; margin-bottom: 5px; color: #333; font-size: 0.9em; }
+        .grupo-formulario input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; margin-bottom: 10px; border: none; border-radius: 5px; font-weight: bold; font-size: 1em; cursor: pointer; }
+        .btn-gerente { background-color: #1a1a2e; color: white; }
+        .btn-lider { background-color: #b87333; color: white; }
+        .btn-func { background-color: white; color: #1a1a2e; border: 1px solid #ccc; }
+        .rodape { color: #aaa; font-size: 0.8em; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card-login">
+        <div class="cabecalho">
+            <span>ESTOQUE+VALIDADE</span>
+            <span class="badge">PROTÓTIPO v4</span>
+        </div>
+        <div class="conteudo">
+            <h2 class="titulo">Estoque+Validade</h2>
+            <p class="subtitulo">Mercearia Japonesa — Jaguaré</p>
+            <div class="grupo-formulario">
+                <label>Usuário</label>
+                <input type="text" placeholder="seu nome de usuário">
+            </div>
+            <div class="grupo-formulario">
+                <label>Senha</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <a href="/menu-gerente/" style="text-decoration: none;">
+                <button class="btn btn-gerente">Entrar como Gerente/Administrador</button>
+            </a>
+            <a href="/menu-funcionario-lider/" style="text-decoration: none;">
+                 <button class="btn btn-lider">Entrar como Funcionário Líder</button>
+            </a>
+            <a href="/menu-funcionario/" style="text-decoration: none;">
+               <button class="btn btn-func">Entrar como Funcionário</button>
+            </a>
+            <div class="rodape">Protótipo de baixa fidelidade — PI UNIVESP 2026</div>
+        </div>
+    </div>
+</body>
+</html>

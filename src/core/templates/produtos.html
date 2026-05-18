@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque+Validade — Cadastro</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding: 10px; margin: 0; }
+        .card { background: white; width: 95%; max-width: 480px; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 10px; padding-bottom: 20px; }
+        .header { background: #1a1a2e; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .conteudo { padding: 20px; }
+        .topo-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 14px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .form-group { flex: 1; margin-bottom: 12px; }
+        label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: bold; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #dfe6e9; box-sizing: border-box; font-size: 15px; }
+        .btn-salvar { width: 100%; background: #1a1a2e; color: white; padding: 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .btn-excluir { width: 100%; background: #ff7675; color: white; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; display: none; }
+        .msg-alerta { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 12px; border: 1px solid #c3e6cb; margin-bottom: 20px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header"><b>ESTOQUE+VALIDADE</b><span style="font-size: 10px;">v4.3</span></div>
+        <div class="conteudo">
+            <div class="topo-nav">
+                <a href="javascript:void(0)" onclick="history.back()" style="text-decoration:none; color: #1a1a2e;">← Voltar</a>
+                <b>Cadastrar / Editar Produto</b>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="msg-alerta" id="aviso">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form id="form-produto" method="POST" action="/salvar-produto/">
+                {% csrf_token %}
+                <input type="hidden" name="id_produto" id="id_produto">
+
+                <div class="form-group">
+                    <label>Código de barras (Bipe aqui)</label>
+                    <input type="text" name="codigo" id="codigo" style="border: 2px solid #1a1a2e;" autofocus required onkeydown="if(event.keyCode==13){event.preventDefault();}">
+                </div>
+
+                <div class="form-group">
+                    <label>Nome do produto</label>
+                    <input type="text" name="nome" id="nome" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <input list="lista-categorias" name="categoria" id="categoria" placeholder="Escolha ou digite...">
+                        <datalist id="lista-categorias">
+                            {% for cat in categorias %}<option value="{{ cat.nome }}">{% endfor %}
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Subcategoria</label>
+                        <input list="lista-subs" name="subcategoria" id="subcategoria" placeholder="Escolha ou digite...">
+                        <datalist id="lista-subs">
+                            {% for sub in subcategorias %}<option value="{{ sub.nome }}">{% endfor %}
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Unidade Medida</label>
+                        <input list="lista-unidades" name="unidade" id="unidade" placeholder="Ex: UN, KG...">
+                        <datalist id="lista-unidades">
+                            {% for uni in unidades %}<option value="{{ uni.sigla }}">{% endfor %}
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Margem Promo (Dias)</label>
+                        <input type="number" name="margem" id="margem" value="30">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-salvar">Confirmar Salvar</button>
+                <button type="button" id="btn-excluir" class="btn-excluir">Excluir Produto Permanentemente</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const campoCodigo = document.getElementById('codigo');
+        const btnExcluir = document.getElementById('btn-excluir');
+
+        // Esconde avisos após 5 segundos
+        setTimeout(() => { 
+            const aviso = document.getElementById('aviso');
+            if(aviso) aviso.style.display = 'none'; 
+        }, 5000);
+
+        // Busca automática ao bipar
+        campoCodigo.addEventListener('change', function() {
+            const codigo = this.value;
+            if (!codigo) return;
+
+            fetch(`/buscar-produto-ajax/?busca_codigo=${codigo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.encontrado) {
+                        document.getElementById('id_produto').value = data.dados.id;
+                        document.getElementById('nome').value = data.dados.nome;
+                        document.getElementById('margem').value = data.dados.margem;
+                        document.getElementById('categoria').value = data.dados.cat;
+                        document.getElementById('subcategoria').value = data.dados.sub;
+                        document.getElementById('unidade').value = data.dados.unidade;
+                        btnExcluir.style.display = 'block';
+                    } else {
+                        document.getElementById('id_produto').value = "";
+                        document.getElementById('nome').value = "";
+                        btnExcluir.style.display = 'none';
+                    }
+                });
+        });
+
+        // Botão Excluir
+        btnExcluir.addEventListener('click', function() {
+            const id = document.getElementById('id_produto').value;
+            if (id && confirm("Deseja realmente remover este produto do sistema?")) {
+                window.location.href = `/excluir-produto/${id}/`;
+            }
+        });
+    </script>
+</body>
+</html>

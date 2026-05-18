@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Líder — Estoque+Validade</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; width: 380px; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        .header { background: #1a1a2e; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: #e94560; padding: 5px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .conteudo { padding: 25px; }
+        .user-tag { float: right; background: #fffbeb; color: #b45309; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #fef3c7; }
+        h2 { font-size: 20px; margin-top: 0; color: #1e293b; }
+        
+        .item-menu { display: flex; align-items: center; border: 1px solid #f1f5f9; padding: 18px; border-radius: 20px; margin-top: 15px; text-decoration: none; color: inherit; transition: all 0.3s ease; background: #fff; }
+        .item-menu:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-color: #e2e8f0; background: #f8fafc; }
+        
+        .icon { font-size: 28px; margin-right: 18px; background: #f1f5f9; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
+        .texto-item b { display: block; font-size: 15px; color: #334155; }
+        .texto-item span { font-size: 12px; color: #64748b; }
+        
+        .btn-sair { width: 100%; margin-top: 30px; padding: 14px; border-radius: 15px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: bold; color: #475569; transition: 0.2s; }
+        .btn-sair:hover { background: #f1f5f9; color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <b>ESTOQUE+VALIDADE</b>
+            <span class="badge">PROTÓTIPO v4</span>
+        </div>
+        
+        <div class="conteudo">
+            <span class="user-tag">Líder</span>
+            <h2>Menu principal</h2>
+
+            <a href="/movimentacao/" class="item-menu">
+                <div class="icon">📦</div>
+                <div class="texto-item">
+                    <b>Movimentação de estoque</b>
+                    <span>Consultar, atualizar e validar</span>
+                </div>
+            </a>
+
+            <a href="/produtos/" class="item-menu">
+                <div class="icon">➕</div>
+                <div class="texto-item">
+                    <b>Cadastrar produto</b>
+                    <span>Novo produto ou editar existente</span>
+                </div>
+            </a>
+
+            <a href="/categorias/" class="item-menu">
+                <div class="icon">📁</div>
+                <div class="texto-item">
+                    <b>Gerenciar Categorias</b>
+                    <span>Criar ou editar grupos</span>
+                </div>
+            </a>
+
+            <a href="/unidades/" class="item-menu">
+                <div class="icon">⚖️</div>
+                <div class="texto-item">
+                    <b>Unidades de Medida</b>
+                    <span>Configurar UN, KG, LT, etc.</span>
+                </div>
+            </a>
+
+            <a href="/login/" style="text-decoration: none;">
+                <button class="btn-sair">Sair</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

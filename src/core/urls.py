@@ -1,15 +1,30 @@
-# src/core/urls.py
-#
-# Each app owns its URL configuration. The project's root urls.py includes
-# this file with include(), keeping routing modular — adding or removing the
-# core app from the project is a one-line change in config/urls.py.
-
+from django.contrib import admin
 from django.urls import path
+from core import views 
 
-from core.views import hello
-
-app_name = "core"  # Enables URL namespacing: reverse("core:hello")
+app_name = "core"   
 
 urlpatterns = [
-    path("", hello, name="hello"),
+    # 1. Rota do Painel de Administração do Django
+    path("admin/", admin.site.urls),
+    
+    # 2. Rota Principal: Ao abrir localhost:3333/ ele chama o login
+    path("", views.tela_login, name="tela_login"),
+    
+    # 3. Rota alternativa: Também abre o login se digitar localhost:3333/login/
+    path("login/", views.tela_login, name="tela_login"),
+    
+    # Rota do Menu Líder
+    path("menu-lider/", views.menu_lider, name="menu_lider"),
+    
+    # Rotas que estão nos botões do seu Menu HTML
+    path("movimentacao/", views.movimentacao_estoque, name="movimentacao_estoque"),
+    path("produtos/", views.tela_cadastro_produto, name="tela_cadastro_produto"),
+    path("categorias/", views.gerenciar_categorias, name="gerenciar_categorias"),
+    path("unidades/", views.gerenciar_unidades, name="gerenciar_unidades"),
+    
+    # Funções de suporte (Ajax, Salvar, Excluir)
+    path("salvar-produto/", views.salvar_produto, name="salvar_produto"),
+    path("buscar-produto-ajax/", views.buscar_produto_ajax, name="buscar_produto_ajax"),
+    path("excluir-produto/<int:id>/", views.excluir_produto, name="excluir_produto"),
 ]

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Gerente — Estoque+Validade</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; width: 350px; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { background: #1a1a2e; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: #e94560; padding: 4px 8px; border-radius: 10px; font-size: 10px; color: white; }
+        .conteudo { padding: 20px; }
+        .user-type { float: right; background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 15px; font-size: 12px; }
+        h2 { font-size: 18px; margin-top: 0; color: #333; }
+        .item-menu { display: flex; align-items: center; border: 1px solid #eee; padding: 15px; border-radius: 15px; margin-top: 15px; text-decoration: none; color: inherit; }
+        .icon { font-size: 25px; margin-right: 15px; background: #f8fafc; padding: 10px; border-radius: 12px; }
+        .texto-item b { display: block; font-size: 14px; }
+        .texto-item span { font-size: 11px; color: #888; }
+        .btn-sair { width: 100%; margin-top: 25px; padding: 12px; border-radius: 10px; border: 1px solid #ccc; background: white; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header"><span>ESTOQUE+VALIDADE</span><span class="badge">PROTÓTIPO v4</span></div>
+        <div class="conteudo">
+            <span class="user-type">Gerente</span>
+            <h2>Menu principal</h2>
+
+            <div class="item-menu"><div class="icon">📦</div><div class="texto-item"><b>Movimentação de estoque</b><span>Controle geral e validade</span></div></div>
+            <div class="item-menu"><div class="icon">➕</div><div class="texto-item"><b>Cadastrar produto</b><span>Gerenciar catálogo</span></div></div>
+            
+            <div class="item-menu"><div class="icon">📊</div><div class="texto-item"><b>Relatórios de desempenho</b><span>Análise de perdas e estoque</span></div></div>
+
+            <a href="/login/"><button class="btn-sair">Sair</button></a>
+        </div>
+    </div>
+</body>
+</html>
