@@ -1,0 +1,53 @@
+[
+  {
+    "model": "core.usuario",
+    "pk": 1,
+    "fields": {
+      "username": "gerente_teste",
+      "first_name": "Gerente",
+      "last_name": "Teste",
+      "email": "gerente@example.com",
+      "password": "pbkdf2_sha256$1000000$StaticSalt123456$W+GcYsNyhWhKZq5fsLj6Fw+EPVicawJ03RTfUI2OtJc=",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": false,
+      "perfil": "gerente",
+      "date_joined": "2026-05-22T00:00:00Z",
+      "last_login": null
+    }
+  },
+  {
+    "model": "core.usuario",
+    "pk": 2,
+    "fields": {
+      "username": "funcionario_lider_teste",
+      "first_name": "Funcionario",
+      "last_name": "Lider",
+      "email": "lider@example.com",
+      "password": "pbkdf2_sha256$1000000$StaticSalt123456$W+GcYsNyhWhKZq5fsLj6Fw+EPVicawJ03RTfUI2OtJc=",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "perfil": "funcionario_lider",
+      "date_joined": "2026-05-22T00:00:00Z",
+      "last_login": null
+    }
+  },
+  {
+    "model": "core.usuario",
+    "pk": 3,
+    "fields": {
+      "username": "funcionario_teste",
+      "first_name": "Funcionario",
+      "last_name": "Padrao",
+      "email": "funcionario@example.com",
+      "password": "pbkdf2_sha256$1000000$StaticSalt123456$W+GcYsNyhWhKZq5fsLj6Fw+EPVicawJ03RTfUI2OtJc=",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "perfil": "funcionario",
+      "date_joined": "2026-05-22T00:00:00Z",
+      "last_login": null
+    }
+  }
+]

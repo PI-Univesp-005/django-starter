@@ -34,6 +34,10 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 _raw_hosts = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1")
 ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
 
+# ── Fixtures setup ────────────────────────────────────────────────────────────
+FIXTURE_DIRS = [
+    os.path.join(BASE_DIR, 'fixtures'),
+]
 
 # ── Installed apps ────────────────────────────────────────────────────────────
 # Only the default Django apps are included. No custom app is needed yet —
@@ -141,6 +145,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
 
 # ── Internationalisation ──────────────────────────────────────────────────────
 LANGUAGE_CODE = "en-us"
