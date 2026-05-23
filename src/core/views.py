@@ -3,6 +3,12 @@ from django.http import JsonResponse
 from django.contrib import messages
 from .models import Produto, Categoria, Subcategoria, UnidadeMedida
 
+# Adicione esta função no seu views.py
+from django.shortcuts import redirect
+from django.urls import reverse
+from .models import Produto
+
+
 
 # TELA DE LOGIN
 def tela_login(request):
@@ -79,9 +85,8 @@ def salvar_produto(request):
         if criado:
             messages.success(request, f"✅ Produto '{nome}' cadastrado com sucesso!")
         else:
-            messages.success(request, f"💾 Alterações em '{nome}' salvas com sucesso!")
-
-        return redirect('core:tela_cadastro_produto')
+            messages.success(request, f"💾 Alterações em '{nome}' salvas com sucesso!")       
+        return redirect('core:atualizar_estoque', id_produto=produto.id)
 
 # BUSCA AJAX: Para preenchimento automático ao bipar
 def buscar_produto_ajax(request):
@@ -114,3 +119,18 @@ def excluir_produto(request, id):
 def tela_login(request):
     # Aqui você renderiza o seu HTML de login
     return render(request, "login.html")
+
+
+# Certifique-se de que sua view de verificação esteja assim:
+def verificar_e_redirecionar(request):
+    codigo = request.GET.get('codigo') # Este nome deve ser igual ao 'name' do input no HTML
+    if not codigo:
+        return redirect('core:movimentacao_estoque')
+        
+    produto = Produto.objects.filter(COD_BARRAS=codigo).first()
+    
+    if produto:
+        return redirect('core:atualizar_estoque', id_produto=produto.id)
+    else:
+        # Envia para o cadastro e leva o código na URL para auto-preencher
+        return redirect(f"{reverse('core:tela_cadastro_produto')}?busca_codigo={codigo}")
