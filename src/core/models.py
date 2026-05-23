@@ -33,3 +33,22 @@ class Subcategoria(models.Model):
 class UnidadeMedida(models.Model):
     sigla = models.CharField(max_length=10, unique=True) # Ex: UN, KG, LT
     def __str__(self): return self.sigla
+
+class Mercadorias(models.Model):
+    ID_MERCADORIA = models.AutoField(primary_key=True)
+    # Criamos a ligação (Chave Estrangeira) com a tabela de Produtos:
+    ID_PRODUTO = models.ForeignKey(Produto, db_column='ID_PRODUTO', on_delete=models.CASCADE, related_name='mercadorias')
+    ID_FORNECEDOR = models.IntegerField(blank=True, null=True)
+    ID_SITUACAO = models.IntegerField(blank=True, null=True)
+    LOTE = models.CharField(max_length=50, blank=True, null=True)
+    QTD_LOTE = models.IntegerField(default=0)
+    DT_COMPRA = models.DateField(blank=True, null=True)
+    DT_VALIDADE = models.DateField(blank=True, null=True)
+    PRECO_UN_LOTE = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
+
+    class Meta:
+        managed = False      # Diz ao Django que a tabela já existe no MySQL
+        db_table = 'MERCADORIAS'  # Nome exato da tabela em maiúsculo no seu Workbench
+
+    def __str__(self):
+        return f"Lote {self.LOTE} - {self.ID_PRODUTO.NOME_PRODUTO}"

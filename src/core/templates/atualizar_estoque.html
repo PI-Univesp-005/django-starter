@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Estoque</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; color: #333; }
+        .card { background: white; width: 380px; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { background: #1a1a2e; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header b { font-size: 14px; letter-spacing: 1px; }
+        .badge-live { background: #ff4757; padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .conteudo { padding: 20px; }
+        .topo-navegacao { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 20px; border-bottom: 1px solid #f1f2f6; padding-bottom: 15px; }
+        .btn-voltar { text-decoration: none; color: #3498db; font-size: 14px; margin-right: 15px; }
+        .titulo-pagina { font-size: 16px; font-weight: bold; color: #2d3436; }
+        
+        .produto-destaque { background: #f8f9fa; border-radius: 15px; padding: 15px; display: flex; align-items: center; margin-bottom: 20px; border: 1px solid #f1f2f6; }
+        .prod-icon { width: 45px; height: 45px; background: #e1f5fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 15px; }
+        .prod-info { flex: 1; }
+        .prod-info b { font-size: 16px; display: block; color: #2d3436; }
+        .prod-info span { font-size: 10px; color: #b2bec3; display: block; line-height: 1.4; margin-top: 3px; }
+        .prod-total { text-align: center; }
+        .prod-total b { font-size: 22px; color: #2d3436; }
+        .prod-total span { font-size: 9px; color: #b2bec3; display: block; }
+
+        .sessao-titulo { font-size: 11px; font-weight: bold; color: #b2bec3; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
+        .tabela-scroll { max-height: 250px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px; }
+        .tabela-scroll::-webkit-scrollbar { width: 4px; }
+        .tabela-scroll::-webkit-scrollbar-thumb { background: #dfe6e9; border-radius: 4px; }
+        .tabela-lotes { width: 100%; border-collapse: collapse; }
+        .tabela-lotes th { position: sticky; top: 0; background: white; z-index: 10; text-align: left; color: #b2bec3; padding: 0 5px 8px 5px; border-bottom: 1px solid #f1f2f6; font-weight: bold; font-size: 10px; }
+        .tabela-lotes td { padding: 12px 5px; border-bottom: 1px solid #f1f2f6; vertical-align: middle; }
+        
+        /* Botões Maiores de Edição */
+        .lote-inativo { opacity: 0.5; background: #fafbfc; } 
+        .btn-lapis { background: #f1f2f6; border: none; border-radius: 8px; padding: 10px 12px; cursor: pointer; color: #2d3436; font-size: 16px; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-salvar { background: #27ae60; border: none; border-radius: 8px; padding: 10px 12px; cursor: pointer; color: white; font-size: 14px; font-weight: bold; width: 100%; box-shadow: 0 2px 4px rgba(39,174,96,0.3); }
+        .input-limpo { border: 1px solid transparent; background: transparent; font-size: 13px; font-weight: bold; color: #2d3436; outline: none; width: 95px; padding: 4px; font-family: inherit; transition: 0.2s; }
+        .input-limpo.editavel { border: 1px solid #3498db; background: #fff; border-radius: 6px; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
+        .lote-pequeno { font-size: 10px; color: #b2bec3; font-weight: normal; margin-top: 2px; }
+        .qtd-input { width: 40px; text-align: center; }
+        .status-select { border: 1px solid #dfe6e9; border-radius: 6px; padding: 6px 2px; font-size: 10px; font-weight: bold; background: white; color: #2d3436; width: 100%; outline: none; }
+        .status-select.editavel { border-color: #3498db; background: #fff; }
+
+        .form-add-lote { border: 1px dashed #dfe6e9; border-radius: 12px; padding: 12px; margin-bottom: 20px; background: #fafbfc; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
+        .input-box { flex: 1; }
+        .input-box label { display: block; font-size: 9px; color: #636e72; margin-bottom: 3px; font-weight: bold; }
+        .input-box input { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #dfe6e9; border-radius: 6px; font-size: 12px; height: 32px; }
+        .btn-verde { background: #27ae60; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; height: 32px; display: flex; align-items: center; justify-content: center; width: 100%; font-size: 11px; transition: 0.2s; }
+        .botoes-movimento { display: flex; gap: 10px; margin-bottom: 10px; }
+        .btn-entrada { flex: 1; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-saida { flex: 1; background: #e74c3c; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-zerar { width: 100%; background: #f8f9fa; color: #636e72; border: 1px solid #dfe6e9; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* Botão de Filtro Inativos */
+        .btn-filtro { font-size: 10px; color: #3498db; text-decoration: none; font-weight: bold; background: #e1f5fe; padding: 4px 8px; border-radius: 8px; border: 1px solid #b3e5fc; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <b>ESTOQUE+VALIDADE</b>
+            <span class="badge-live">PROTÓTIPO v4</span>
+        </div>
+
+        <div class="conteudo">
+            <div class="topo-navegacao">
+                <a href="javascript:history.back()" class="btn-voltar">← Voltar</a>
+                <span class="titulo-pagina">Atualizar estoque</span>
+            </div>
+
+            <div class="produto-destaque">
+                <div class="prod-icon">📦</div>
+                <div class="prod-info">
+                    <b>{{ produto.NOME_PRODUTO }}</b>
+                    <span>
+                        {{ produto.CATEGORIA|default:"Sem categoria" }} - {{ produto.SUBCATEGORIA|default:"Sem prateleira" }}<br>
+                        Cód. {{ produto.COD_BARRAS }}
+                    </span>
+                </div>
+                <div class="prod-total">
+                    <b>{{ qtd_total }} UN</b>
+                    <span>total tabela prod</span>
+                </div>
+            </div>
+
+           {% for item in lotes %}
+                <form id="form-{{ item.dados.ID_MERCADORIA }}" method="POST" action="/editar-lote/{{ item.dados.ID_MERCADORIA }}/">
+                    {% csrf_token %}
+                </form>
+            {% endfor %}
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="sessao-titulo" style="margin: 0;">LOTES INFORMATIVOS</div>
+                <a href="?mostrar_inativos={% if mostrar_inativos %}false{% else %}true{% endif %}" class="btn-filtro">
+                    {% if mostrar_inativos %}👁️ Ocultar baixados{% else %}👁️ Mostrar baixados{% endif %}
+                </a>
+            </div>
+            
+            <div class="tabela-scroll">
+                <table class="tabela-lotes">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">AÇÃO</th>
+                            <th>VALIDADE / LOTE</th>
+                            <th>QTD</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in lotes %}
+                        <tr class="{% if item.inativo %}lote-inativo{% endif %}">
+                            
+                            <td style="text-align: center;">
+                                <button type="button" class="btn-lapis" id="edit-{{ item.dados.ID_MERCADORIA }}" onclick="ativarEdicao('{{ item.dados.ID_MERCADORIA }}')" title="Editar dados">✎</button>
+                                <button type="submit" class="btn-salvar" id="save-{{ item.dados.ID_MERCADORIA }}" form="form-{{ item.dados.ID_MERCADORIA }}" style="display: none;" title="Salvar alterações">✓</button>
+                            </td>
+
+                            <td>
+                                <div style="display: flex; flex-direction: column;">
+                                    <input type="date" name="validade" form="form-{{ item.dados.ID_MERCADORIA }}" value="{{ item.dados.DT_VALIDADE|date:'Y-m-d' }}" readonly class="input-limpo field-{{ item.dados.ID_MERCADORIA }}" onchange="mostrarSalvar('{{ item.dados.ID_MERCADORIA }}')">
+                                    <input type="text" name="lote" form="form-{{ item.dados.ID_MERCADORIA }}" value="{{ item.dados.LOTE|default:'' }}" readonly class="input-limpo lote-pequeno field-{{ item.dados.ID_MERCADORIA }}" placeholder="Sem lote" oninput="mostrarSalvar('{{ item.dados.ID_MERCADORIA }}')">
+                                </div>
+                            </td>
+                            
+                            <td style="font-size: 13px; color: #2d3436; font-weight: bold; text-align: center;">
+                                <input type="number" name="qtd" form="form-{{ item.dados.ID_MERCADORIA }}" value="{{ item.dados.QTD_LOTE }}" readonly class="input-limpo qtd-input field-{{ item.dados.ID_MERCADORIA }}" oninput="mostrarSalvar('{{ item.dados.ID_MERCADORIA }}')">
+                            </td>
+                            
+                            <td>
+                                <select name="status" form="form-{{ item.dados.ID_MERCADORIA }}" class="status-select field-{{ item.dados.ID_MERCADORIA }}" onchange="mostrarSalvar('{{ item.dados.ID_MERCADORIA }}')">
+                                    <option value="1" {% if item.dados.ID_SITUACAO == 1 or not item.dados.ID_SITUACAO %}selected{% endif %}>Estoque</option>
+                                    <option value="2" {% if item.dados.ID_SITUACAO == 2 %}selected{% endif %}>Colocar em promo.</option>
+                                    <option value="3" {% if item.dados.ID_SITUACAO == 3 %}selected{% endif %}>Em promoção</option>
+                                    <option value="4" {% if item.dados.ID_SITUACAO == 4 %}selected{% endif %}>Vencido</option>
+                                    <option value="5" {% if item.dados.ID_SITUACAO == 5 %}selected{% endif %}>Descartado</option>
+                                    <option value="6" {% if item.dados.ID_SITUACAO == 6 %}selected{% endif %}>Vendido</option>
+                                </select>
+
+                                <div style="margin-top: 5px;">
+                                    {% if item.alerta_cor == 'danger' %}
+                                        <div style="background: #ff7675; color: white; font-size: 8px; padding: 2px 4px; border-radius: 4px; width: fit-content; font-weight: bold;">⚠️ {{ item.alerta_texto }}</div>
+                                    {% elif item.alerta_cor == 'warning-high' %}
+                                        <div style="background: #fab1a0; color: #d63031; font-size: 8px; padding: 2px 4px; border-radius: 4px; width: fit-content; font-weight: bold;">⏰ {{ item.alerta_texto }}</div>
+                                    {% else %}
+                                        <div style="background: #fff4e6; color: #fd7e14; font-size: 8px; padding: 2px 4px; border-radius: 4px; width: fit-content; font-weight: bold;">⏰ {{ item.alerta_texto }}</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #b2bec3; font-weight: normal; padding: 30px 10px;">
+                                <div style="font-size: 24px; margin-bottom: 5px;">📭</div>
+                                Nenhum lote cadastrado
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-add-lote">
+                <div class="sessao-titulo" style="margin-bottom: 10px;">ADICIONAR NOVO LOTE</div>
+                <div class="input-group">
+                    <div class="input-box">
+                        <label>Lote (opcional)</label>
+                        <input type="text" placeholder="Ex: 3030">
+                    </div>
+                    <div class="input-box">
+                        <label>Qtd (UN)</label>
+                        <input type="number" placeholder="Ex: 20">
+                    </div>
+                </div>
+                <div class="input-group" style="align-items: flex-end; margin-bottom: 0;">
+                    <div class="input-box" style="flex: 2;">
+                        <label>Data de validade</label>
+                        <input type="date">
+                    </div>
+                    <div style="flex: 1.2;">
+                        <button class="btn-verde">+ Adicionar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sessao-titulo">MOVIMENTAR ESTOQUE</div>
+            <div class="botoes-movimento">
+                <button class="btn-entrada">+ Entrada</button>
+                <button class="btn-saida">- Saída</button>
+            </div>
+            <button class="btn-zerar">Zerar estoque</button>
+        </div>
+    </div>
+
+    <script>
+        function ativarEdicao(id) {
+            document.getElementById('edit-' + id).style.display = 'none';
+            document.getElementById('save-' + id).style.display = 'block';
+            
+            let campos = document.querySelectorAll('.field-' + id);
+            campos.forEach(function(campo) {
+                campo.removeAttribute('readonly'); 
+                campo.classList.add('editavel'); 
+            });
+        }
+
+        function mostrarSalvar(id) {
+            document.getElementById('edit-' + id).style.display = 'none';
+            document.getElementById('save-' + id).style.display = 'block';
+            
+            let selectStatus = document.querySelector('select.field-' + id);
+            selectStatus.classList.add('editavel');
+        }
+    </script>
+</body>
+</html>
