@@ -53,7 +53,8 @@
                 
                 <div class="busca-container">
                     <span>🔍</span>
-                    <input type="text" name="busca" value="{{ busca_atual }}" placeholder="Bipar código de barras ou buscar...">
+                    <input type="text" name="codigo" value="{{ busca_atual }}" placeholder="Bipar código de barras..."
+                    onkeydown="if(event.keyCode==13){ event.preventDefault(); window.location.href='{% url 'core:verificar_produto' %}?codigo=' + this.value; }">
                 </div>
 
                 <input type="hidden" name="filtro" id="input-filtro" value="{{ filtro_atual }}">

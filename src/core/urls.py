@@ -37,4 +37,6 @@ urlpatterns = [
     path('adicionar-lote/<int:id_produto>/', views_atualizar_estoque.adicionar_lote, name='adicionar_lote'),
 path('informar-estoque/<int:id_produto>/<str:tipo>/', views_atualizar_estoque.informar_estoque, name='informar_estoque'),
 
+# Adicione no seu urlpatterns
+path('verificar-produto/', views.verificar_e_redirecionar, name='verificar_produto'),
 ]
