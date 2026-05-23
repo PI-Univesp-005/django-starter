@@ -5,7 +5,7 @@ from .models import Produto, Mercadorias
 def atualizar_estoque(request, id_produto):
     hoje = timezone.now().date()
     produto = Produto.objects.get(id=id_produto)
-    qtd_total = getattr(produto, 'QUANTIDADE', 0)
+    qtd_total = produto.QTD_ESTOQUE
     mostrar_inativos = request.GET.get('mostrar_inativos', 'false') == 'true'
 
     lotes_cadastrados = Mercadorias.objects.filter(ID_PRODUTO_id=produto.id)
@@ -50,3 +50,21 @@ def adicionar_lote(request, id_produto):
             ID_SITUACAO=1 # Status padrão: Estoque
         )
     return redirect('core:atualizar_estoque', id_produto=id_produto)
+
+def informar_estoque(request, id_produto, tipo):
+    produto = Produto.objects.get(id=id_produto)
+    if request.method == 'POST':
+        qtd = int(request.POST.get('qtd', 0))
+        
+        # Altere para usar o nome em MAIÚSCULAS conforme seu models.py
+        if tipo == 'entrada': 
+            produto.QTD_ESTOQUE += qtd
+        elif tipo == 'saida': 
+            produto.QTD_ESTOQUE -= qtd
+        elif tipo == 'zerar': 
+            produto.QTD_ESTOQUE = 0
+            
+        produto.save()
+        return redirect('core:atualizar_estoque', id_produto=id_produto)
+    
+    return render(request, 'confirmar_movimentacao.html', {'produto': produto, 'tipo': tipo})

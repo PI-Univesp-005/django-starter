@@ -162,35 +162,40 @@
                 </table>
             </div>
 
-            <div class="form-add-lote">
-                <div class="sessao-titulo" style="margin-bottom: 10px;">ADICIONAR NOVO LOTE</div>
-                <div class="input-group">
-                    <div class="input-box">
-                        <label>Lote (opcional)</label>
-                        <input type="text" placeholder="Ex: 3030">
-                    </div>
-                    <div class="input-box">
-                        <label>Qtd (UN)</label>
-                        <input type="number" placeholder="Ex: 20">
-                    </div>
-                </div>
-                <div class="input-group" style="align-items: flex-end; margin-bottom: 0;">
-                    <div class="input-box" style="flex: 2;">
-                        <label>Data de validade</label>
-                        <input type="date">
-                    </div>
-                    <div style="flex: 1.2;">
-                        <button class="btn-verde">+ Adicionar</button>
-                    </div>
-                </div>
+           <div class="form-add-lote">
+    <div class="sessao-titulo" style="margin-bottom: 10px;">ADICIONAR NOVO LOTE</div>
+    
+    <form method="POST" action="{% url 'core:adicionar_lote' produto.id %}">
+        {% csrf_token %}
+        <div class="input-group">
+            <div class="input-box">
+                <label>Lote (opcional)</label>
+                <input type="text" name="lote" placeholder="Ex: 3030">
             </div>
+            <div class="input-box">
+                <label>Qtd (UN)</label>
+                <input type="number" name="qtd" placeholder="Ex: 20">
+            </div>
+        </div>
+        <div class="input-group" style="align-items: flex-end; margin-bottom: 0;">
+            <div class="input-box" style="flex: 2;">
+                <label>Data de validade</label>
+                <input type="date" name="validade">
+            </div>
+            <div style="flex: 1.2;">
+                <button type="submit" class="btn-verde" onclick="return confirmarAdicao()">+ Adicionar</button>
+            </div>
+        </div>
+    </form>
+</div>
 
             <div class="sessao-titulo">MOVIMENTAR ESTOQUE</div>
             <div class="botoes-movimento">
-                <button class="btn-entrada">+ Entrada</button>
-                <button class="btn-saida">- Saída</button>
+               <a href="{% url 'core:informar_estoque' produto.id 'entrada' %}" class="btn-entrada" ... >+ Entrada</a>
+<a href="{% url 'core:informar_estoque' produto.id 'saida' %}" class="btn-saida" ... >- Saída</a>
             </div>
-            <button class="btn-zerar">Zerar estoque</button>
+
+            <a href="{% url 'core:informar_estoque' produto.id 'zerar' %}" class="btn-zerar" ... >Zerar estoque</a>
         </div>
     </div>
 
@@ -204,6 +209,22 @@
                 campo.removeAttribute('readonly'); 
                 campo.classList.add('editavel'); 
             });
+        }
+
+        function confirmarAdicao() {
+            // Pega os valores que você digitou no formulário de baixo
+            let lote = document.querySelector('input[name="lote"]').value;
+            let qtd = document.querySelector('input[name="qtd"]').value;
+            let validade = document.querySelector('input[name="validade"]').value;
+
+            // Monta a mensagem que aparecerá na janelinha
+            let mensagem = "Deseja realmente adicionar este lote?\n\n" +
+                           "Lote: " + (lote || "Não informado") + "\n" +
+                           "Quantidade: " + (qtd || "0") + " UN\n" +
+                           "Validade: " + (validade || "Não informada");
+
+            // O 'confirm' retorna true se você clicar em OK, e false se cancelar
+            return confirm(mensagem);
         }
 
         function mostrarSalvar(id) {

@@ -35,4 +35,6 @@ urlpatterns = [
     path('atualizar-estoque/<int:id_produto>/', views_atualizar_estoque.atualizar_estoque, name='atualizar_estoque'),
     path('editar-lote/<int:id_lote>/', views_atualizar_estoque.editar_lote, name='editar_lote'),
     path('adicionar-lote/<int:id_produto>/', views_atualizar_estoque.adicionar_lote, name='adicionar_lote'),
+path('informar-estoque/<int:id_produto>/<str:tipo>/', views_atualizar_estoque.informar_estoque, name='informar_estoque'),
+
 ]

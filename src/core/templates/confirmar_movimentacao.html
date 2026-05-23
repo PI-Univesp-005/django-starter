@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Movimentação</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; color: #333; }
+        .card { background: white; width: 380px; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 20px; }
+        .titulo-pagina { font-size: 18px; font-weight: bold; color: #2d3436; margin-bottom: 20px; display: block; text-align: center; }
+        .btn-confirmar { width: 100%; background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-cancelar { width: 100%; background: #f8f9fa; color: #636e72; border: 1px solid #dfe6e9; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; text-align: center; display: block; text-decoration: none; }
+        input[type="number"] { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #dfe6e9; border-radius: 8px; margin-bottom: 15px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <span class="titulo-pagina">Confirmar {{ tipo|title }}</span>
+    
+    <p style="text-align: center; font-size: 14px; color: #636e72;">
+        Produto: <b>{{ produto.NOME_PRODUTO }}</b>
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% if tipo != 'zerar' %}
+            <label style="font-size: 12px; font-weight: bold;">Quantidade a movimentar:</label>
+            <input type="number" name="qtd" placeholder="Digite a quantidade" required autofocus>
+        {% else %}
+            <p style="text-align: center; font-weight: bold; color: #e74c3c;">
+                Deseja realmente zerar o estoque deste produto?
+            </p>
+        {% endif %}
+
+        <button type="submit" class="btn-confirmar">Confirmar Ação</button>
+        <a href="{% url 'core:atualizar_estoque' produto.id %}" class="btn-cancelar">Cancelar</a>
+    </form>
+</div>
+
+</body>
+</html>
