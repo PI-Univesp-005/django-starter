@@ -162,14 +162,14 @@ def entrada_estoque(request, pk):
 def saida_estoque(request, pk):
     produto = get_object_or_404(Produto, pk=pk)
     if request.method == 'POST':
-        quantidade = int(request.POST.get('quantidade', 0))
+        quantidade = int(request.POST.get('quantidade', 1))
         if quantidade > 0 and quantidade <= produto.quantidade_total:
             produto.quantidade_total -= quantidade
             produto.save()
             messages.success(request, f'Saída de {quantidade} UN registrada!')
         else:
             messages.error(request, 'Quantidade inválida.')
-        return redirect('estoque_detalhe', pk=pk)
+    # return redirect('estoque_detalhe', pk=pk)
     return render(request, 'core/saida_estoque.html', {'produto': produto})
 
 
@@ -230,7 +230,7 @@ def deletar_produto(request, pk):
         produto.delete()
         messages.success(request, 'Produto excluído!')
         return redirect('estoque_lista')
-    return redirect('cadastro_produto', pk=pk)
+    return redirect('cadastro_produto', {'produto': produto})
 
 
 # ─── CORREÇÃO DE ESTOQUE ──────────────────────────────────────────
