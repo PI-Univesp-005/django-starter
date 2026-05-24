@@ -31,9 +31,8 @@ urlpatterns = [
     path('cadastro/<int:pk>/deletar/', views.deletar_produto, name='deletar_produto'),
 
     # Correção
-    path('correcao/', views.correcao, name='correcao'),
-    path('correcao/<int:pk>/', views.correcao_produto, name='correcao_produto'),
-
+    path('correcao/', views.correcao_lotes, name='correcao'),
+    path('correcao/lote/<int:pk>/', views.correcao_editar_lote, name='correcao_editar_lote'),
     # Relatório
     path('relatorio/', views.relatorio, name='relatorio'),
 ]

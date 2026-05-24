@@ -1,66 +1,38 @@
 {% extends "core/base.html" %}
 
-{% block title %}Saída de Estoque — Estoque+Validade{% endblock %}
+{% block title %}Saída de estoque - {{ produto.nome }} - FreshStock{% endblock %}
 
 {% block content %}
-<div class="topbar">
-  <a href="{% url 'estoque_detalhe' produto.pk %}" class="back-btn">← Voltar</a>
-  <div class="topbar-title">Saída de estoque</div>
+<div class="topo-navegacao">
+  <div class="titulo-pagina">💰 Saída do estoque</div>
+  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn-voltar">← Voltar</a>
 </div>
 
-<div class="card">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <div class="prod-img" style="width:52px;height:52px;font-size:26px;">{{ produto.emoji }}</div>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:#1a1a2e;">{{ produto.nome }}</div>
-      <div style="font-size:12px;color:#888;">Estoque atual: {{ produto.quantidade_total }} UN</div>
-    </div>
+<div style="background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+  <div><strong>{{ produto.emoji }} {{ produto.nome }}</strong></div>
+  <div>Total atual: {{ produto.quantidade_total }} UN</div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="field">
+    <label>Selecionar lote:</label>
+    <select name="lote_id" required>
+      {% for lote in lotes %}
+        <option value="{{ lote.id }}">
+          Lote {{ lote.numero_lote|default:"s/n" }} - Validade: {{ lote.data_validade|date:"d/m/Y" }} (disp.: {{ lote.quantidade }} UN)
+        </option>
+      {% empty %}
+        <option disabled>Nenhum lote com estoque disponível</option>
+      {% endfor %}
+    </select>
   </div>
-  <form method="post" id="saida-form">
-    {% csrf_token %}
-    <div class="field">
-      <label>Quantidade a remover</label>
-      <input id="quantidade" type="number" name="quantidade" min="1" max="{{ produto.quantidade_total }}" placeholder="Ex: 5" required style="font-size:24px;font-weight:700;text-align:center;" />
-    </div>
-    <div class="hint" style="margin-bottom:12px;">Informe quantas unidades saíram do estoque</div>
-    <button type="submit" class="btn btn-red">Confirmar saída</button>
-  </form>
-  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn btn-outline">Cancelar</a>
-</div>
 
-<script>
-  console.log('ok, script carregado');
-  const form = document.getElementById('saida-form');
-  const qtdInput = document.getElementById('quantidade');
-  
-  validateQuantity(qtdInput);
-  qtdInput.addEventListener('input', function(event) {
-    // Limpa mensagens personalizadas anteriores
-    validateQuantity(qtdInput);
+  <div class="field">
+    <label>Quantidade a retirar (UN)</label>
+    <input type="number" name="quantidade" min="1" required>
+  </div>
 
-    // Se houver alguma invalidez, exibe a mensagem e impede o envio
-    if (!qtdInput.checkValidity()) {
-      event.preventDefault();
-      qtdInput.reportValidity(); // mostra o balão com a mensagem customizada
-    }
-  });
-
-  function validateQuantity(input) {
-    input.setCustomValidity('');
-    const qtde = Number(input.value);
-    const submit = document.querySelector('button[type="submit"]');
-    console.log('Validação personalizada:', qtdInput.validationMessage, 'valor:', qtde);
-
-    if (Number(input.max) === 0) {
-      input.setCustomValidity('Não há unidades em estoque para dar saída. Realize pelo menos uma entrada.');
-    } else if (input.validity.valueMissing) {
-      input.setCustomValidity('Informe quantas unidades saíram.');
-    } else if (input.validity.rangeUnderflow) {
-      input.setCustomValidity(`Voce está tentando remover mais unidades do que existem no estoque.`);
-    } else if (input.validity.rangeOverflow) {
-      input.setCustomValidity(`Estoque atual é de apenas ${input.max} unidades.`);
-    }
-    submit.disabled = !input.checkValidity();
-  }
-</script>
+  <button type="submit" class="btn btn-red">Registrar saída</button>
+</form>
 {% endblock %}

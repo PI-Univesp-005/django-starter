@@ -1,61 +1,66 @@
 {% extends "core/base.html" %}
 
-{% block title %}Estoque — Estoque+Validade{% endblock %}
+{% block title %}FreshStock - Estoque{% endblock %}
 
 {% block content %}
-<div class="topbar">
-  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
-  <div class="topbar-title">Movimentação de estoque</div>
-  <span class="role-badge role-{% if user.perfil == 'gerente' %}adm{% elif user.perfil == 'funcionario_lider' %}lider{% else %}func{% endif %}">
-    {% if user.perfil == 'gerente' %}ADM{% elif user.perfil == 'funcionario_lider' %}Líder{% else %}Funcionário{% endif %}
-  </span>
+<div class="topo-navegacao">
+  <div class="titulo-pagina"> 🗘 Movimentação de estoque</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
 </div>
 
-<div style="display:flex;align-items:center;gap:8px;background:#f5f5f5;border-radius:10px;padding:0 12px;margin-bottom:12px;">
-  <span style="color:#aaa;">🔍</span>
-  <form method="get" style="flex:1;">
-    <input type="text" name="q" value="{{ q }}" placeholder="Buscar produto..." style="border:none;background:transparent;padding:9px 4px;width:100%;font-size:14px;outline:none;" />
-  </form>
-</div>
+<form method="get" style="margin-bottom: 15px;">
+  <div class="busca-container">
+    <span>🔍</span>
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar produto..." />
+  </div>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-  <a href="{% url 'estoque_lista' %}" style="padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;border:1.5px solid {% if not filtro %}#1a1a2e{% else %}#ddd{% endif %};background:{% if not filtro %}#1a1a2e{% else %}#fff{% endif %};color:{% if not filtro %}#fff{% else %}#555{% endif %};">Todos</a>
-  <a href="?filtro=margem" style="padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;border:1.5px solid {% if filtro == 'margem' %}#e67e22{% else %}#ddd{% endif %};background:{% if filtro == 'margem' %}#fef9e7{% else %}#fff{% endif %};color:{% if filtro == 'margem' %}#e67e22{% else %}#555{% endif %};">⏰ Margem de promoção</a>
-  <a href="?filtro=amanha" style="padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;border:1.5px solid {% if filtro == 'amanha' %}#e74c3c{% else %}#ddd{% endif %};background:{% if filtro == 'amanha' %}#fdecea{% else %}#fff{% endif %};color:{% if filtro == 'amanha' %}#e74c3c{% else %}#555{% endif %};">🔴 Vai vencer amanhã</a>
-</div>
+  <div class="filtros-pills">
+    <a href="{% url 'estoque_lista' %}" class="pill {% if not filtro %}active{% endif %}">Todos</a>
+    <a href="?filtro=margem" class="pill {% if filtro == 'margem' %}active{% endif %}" style="{% if filtro == 'margem' %}background: #fef9e7; color: #b7770d; border-color: #b7770d;{% endif %}">📊 Margem promoção</a>
+    <a href="?filtro=amanha" class="pill pill-aviso {% if filtro == 'amanha' %}active{% endif %}" style="{% if filtro == 'amanha' %}background: #ff7675; color: white; border-color: #ff7675;{% endif %}">⚠️ Vencidos / Amanhã</a>
+  </div>
+  <div class="hint" style="margin-top: 6px; font-size: 11px; color:#636e72;">
+    • Margem promoção: apenas produtos com lote válido vencendo dentro do prazo promocional.<br>
+    • Vencidos/Amanhã: produtos que possuem lote já vencido ou que vence amanhã.
+  </div>
+</form>
 
-<div class="card" style="padding:0.75rem 1rem;">
+<div class="card-list scrollable-list" style="max-height: 430px;">
   {% for item in produtos_lista %}
-  <div class="product-row">
-    <div class="prod-img">{{ item.produto.emoji }}</div>
+  <div class="card-list-item">
+    <div class="prod-icon">{{ item.produto.emoji }}</div>
     <div class="prod-info">
-      <div class="prod-name">{{ item.produto.nome }}</div>
-      <div class="prod-code">{{ item.produto.codigo_barras }}</div>
+      <b>{{ item.produto.nome }}</b>
+      <span>{{ item.produto.codigo_barras }}</span>
       {% if item.lote_urgente %}
-        <div style="font-size:11px;margin-top:2px;color:{% if item.dias_urgente <= 1 %}#c0392b{% elif item.dias_urgente <= item.produto.dias_margem_promocao %}#b7770d{% else %}#1e8449{% endif %};">
-          📅 Lote mais urgente: {{ item.lote_urgente.data_validade|date:"d/m/Y" }}
-        </div>
+        <span style="font-weight: 600; color: {% if item.dias_urgente <= 1 %}#e74c3c{% elif item.dias_urgente <= item.produto.dias_margem_promocao %}#fd7e14{% else %}#27ae60{% endif %};">
+          📅 Vence: {{ item.lote_urgente.data_validade|date:"d/m/Y" }}
+        </span>
       {% endif %}
     </div>
-    <div style="text-align:right;margin-right:4px;">
-      <div style="font-size:14px;font-weight:700;">{{ item.quantidade_total }} UN</div>
+    <div class="prod-qtd">
+      <div style="font-size: 14px; font-weight: 700; color: #2d3436;">{{ item.quantidade_total }} UN</div>
       {% if item.dias_urgente is not None %}
-        {% if item.dias_urgente <= 0 %}
-          <span class="badge badge-red">vence hoje</span>
+        {% if item.dias_urgente == 0 %}
+          <span class="badge badge-red" style="display: inline-block; margin-top: 2px;">vence hoje</span>
         {% elif item.dias_urgente == 1 %}
-          <span class="badge badge-red">amanhã</span>
+          <span class="badge badge-red" style="display: inline-block; margin-top: 2px;">amanhã</span>
+        {% elif item.dias_urgente < 0 %}
+          <span class="badge badge-red" style="display: inline-block; margin-top: 2px;">{{ item.dias_urgente }}d</span>
         {% elif item.dias_urgente <= item.produto.dias_margem_promocao %}
-          <span class="badge badge-orange">⏰ {{ item.dias_urgente }} dias</span>
+          <span class="badge badge-orange" style="display: inline-block; margin-top: 2px;">{{ item.dias_urgente }}d</span>
         {% endif %}
       {% endif %}
     </div>
     {% if user.perfil == 'funcionario_lider' or user.perfil == 'gerente' %}
-    <a href="{% url 'cadastro_produto_editar' item.produto.pk %}" style="width:30px;height:30px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;margin-right:4px;">✏️</a>
+    <a href="{% url 'cadastro_produto_editar' item.produto.pk %}" class="btn-action" title="Editar">✏️</a>
     {% endif %}
-    <a href="{% url 'estoque_detalhe' item.produto.pk %}" style="width:30px;height:30px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;">›</a>
+    <a href="{% url 'estoque_detalhe' item.produto.pk %}" class="btn-action" title="Abrir">›</a>
   </div>
   {% empty %}
-  <div class="hint" style="padding:1rem 0;">Nenhum produto encontrado.</div>
+  <div style="text-align: center; padding: 30px; color: #b2bec3; font-size: 13px;">
+    Nenhum produto encontrado.
+  </div>
   {% endfor %}
 </div>
 
@@ -63,5 +68,5 @@
 <a href="{% url 'cadastro_produto' %}" class="btn btn-outline">+ Cadastrar novo produto</a>
 {% endif %}
 
-<div class="hint">Toque em › para ver lotes e movimentar estoque</div>
+<div class="hint" style="margin-top: 12px;">Toque em › para ver lotes e movimentar estoque</div>
 {% endblock %}

@@ -1,19 +1,8 @@
-import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-
-class HealthCheck(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    message = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = "core_healthcheck"
-
-    def __str__(self):
-        return self.message
-
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db.models import Sum
 
 class Usuario(AbstractUser):
     PERFIL_CHOICES = [
@@ -85,6 +74,7 @@ class Lote(models.Model):
     )
     numero_lote = models.CharField(max_length=50, blank=True)
     data_validade = models.DateField()
+    quantidade = models.PositiveIntegerField(default=0)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -98,3 +88,13 @@ class Lote(models.Model):
 
     def __str__(self):
         return f'Lote {self.numero_lote or "s/n"} — {self.produto.nome} (val: {self.data_validade})'
+
+
+@receiver(post_save, sender=Lote)
+@receiver(post_delete, sender=Lote)
+def atualizar_quantidade_total_produto(sender, instance, **kwargs):
+    produto = instance.produto
+    total = produto.lotes.aggregate(soma=Sum('quantidade'))['soma'] or 0
+    if produto.quantidade_total != total:
+        produto.quantidade_total = total
+        produto.save(update_fields=['quantidade_total'])

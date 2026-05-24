@@ -57,5 +57,241 @@
       "date_joined": "2026-05-22T00:00:00Z",
       "last_login": null
     }
+  },
+  {
+    "model": "core.produto",
+    "pk": 1,
+    "fields": {
+      "nome": "Leite Integral Piracanjuba",
+      "codigo_barras": "7891234567890",
+      "emoji": "🥤",
+      "descricao": "Leite UHT integral, 1 litro",
+      "dias_margem_promocao": 30,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 2,
+    "fields": {
+      "nome": "Achocolatado Nescau",
+      "codigo_barras": "7894561230123",
+      "emoji": "🍫",
+      "descricao": "Achocolatado em pó 400g",
+      "dias_margem_promocao": 45,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 3,
+    "fields": {
+      "nome": "Atum Sólido Gomes da Costa",
+      "codigo_barras": "7891237894561",
+      "emoji": "🥫",
+      "descricao": "Atum em óleo, lata 170g",
+      "dias_margem_promocao": 60,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 4,
+    "fields": {
+      "nome": "Pão de Forma Pullman",
+      "codigo_barras": "7893216549870",
+      "emoji": "🍞",
+      "descricao": "Pão de forma integral 450g",
+      "dias_margem_promocao": 7,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 5,
+    "fields": {
+      "nome": "Iogurte Natural Danone",
+      "codigo_barras": "7896541230789",
+      "emoji": "🥚",
+      "descricao": "Iogurte natural 170g",
+      "dias_margem_promocao": 15,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 6,
+    "fields": {
+      "nome": "Sabonete Líquido Dove",
+      "codigo_barras": "7894567890123",
+      "emoji": "🧼",
+      "descricao": "Sabonete líquido hidratante 250ml",
+      "dias_margem_promocao": 90,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 7,
+    "fields": {
+      "nome": "Banana Prata",
+      "codigo_barras": "",
+      "emoji": "🥕",
+      "descricao": "Banana prata, unidade",
+      "dias_margem_promocao": 5,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.produto",
+    "pk": 8,
+    "fields": {
+      "nome": "Carne Moída Friboi",
+      "codigo_barras": "7893216549871",
+      "emoji": "🥩",
+      "descricao": "Carne moída patinho, 500g",
+      "dias_margem_promocao": 10,
+      "quantidade_total": 0,
+      "filial": 1
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 1,
+    "fields": {
+      "produto": 1,
+      "numero_lote": "L123456",
+      "data_validade": "2026-05-25",
+      "quantidade": 20,
+      "status": "colocar_promocao"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 2,
+    "fields": {
+      "produto": 1,
+      "numero_lote": "L123457",
+      "data_validade": "2026-06-03",
+      "quantidade": 30,
+      "status": "estoque"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 3,
+    "fields": {
+      "produto": 2,
+      "numero_lote": "NC240501",
+      "data_validade": "2026-07-15",
+      "quantidade": 15,
+      "status": "estoque"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 4,
+    "fields": {
+      "produto": 3,
+      "numero_lote": "AT2304",
+      "data_validade": "2026-05-10",
+      "quantidade": 5,
+      "status": "vencido"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 5,
+    "fields": {
+      "produto": 3,
+      "numero_lote": "AT2501",
+      "data_validade": "2026-08-01",
+      "quantidade": 25,
+      "status": "estoque"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 6,
+    "fields": {
+      "produto": 4,
+      "numero_lote": "PF2705",
+      "data_validade": "2026-05-27",
+      "quantidade": 10,
+      "status": "colocar_promocao"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 7,
+    "fields": {
+      "produto": 4,
+      "numero_lote": "PF2805",
+      "data_validade": "2026-05-28",
+      "quantidade": 15,
+      "status": "estoque"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 8,
+    "fields": {
+      "produto": 5,
+      "numero_lote": "IO2905",
+      "data_validade": "2026-05-29",
+      "quantidade": 8,
+      "status": "promocao"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 9,
+    "fields": {
+      "produto": 6,
+      "numero_lote": "SL2506",
+      "data_validade": "2026-12-20",
+      "quantidade": 50,
+      "status": "estoque"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 10,
+    "fields": {
+      "produto": 7,
+      "numero_lote": "BP2605",
+      "data_validade": "2026-05-26",
+      "quantidade": 12,
+      "status": "colocar_promocao"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 11,
+    "fields": {
+      "produto": 8,
+      "numero_lote": "CM2105",
+      "data_validade": "2026-05-21",
+      "quantidade": 3,
+      "status": "vencido"
+    }
+  },
+  {
+    "model": "core.lote",
+    "pk": 12,
+    "fields": {
+      "produto": 8,
+      "numero_lote": "CM2805",
+      "data_validade": "2026-05-28",
+      "quantidade": 7,
+      "status": "estoque"
+    }
   }
 ]

@@ -1,70 +1,104 @@
 {% extends "core/base.html" %}
 
-{% block title %}Relatórios — Estoque+Validade{% endblock %}
+{% block title %}FreshStock - Relatórios{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Cards responsivos – ocupam toda largura disponível */
+.grid-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+.card-stat {
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 4px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: 0.1s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 72px;  /* garante altura mínima consistente */
+}
+.card-stat:hover {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.card-stat .label {
+    font-size: 11px;
+    color: #b2bec3;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.card-stat .value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+@media (max-width: 500px) {
+    .grid-cards {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="topbar">
-  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
-  <div class="topbar-title">Relatórios</div>
-  <span class="role-badge role-adm">ADM</span>
+<div class="topo-navegacao">
+  <div class="titulo-pagina"> 📈 Relatórios</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
-    <div style="font-size:12px;color:#888;">Produtos em estoque</div>
-    <div style="font-size:26px;font-weight:700;color:#1a1a2e;margin-top:4px;">{{ total_produtos }}</div>
-  </div>
-  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
-    <div style="font-size:12px;color:#888;">Em promoção</div>
-    <div style="font-size:26px;font-weight:700;color:#e67e22;margin-top:4px;">{{ total_promocao }}</div>
-  </div>
-  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
-    <div style="font-size:12px;color:#888;">Vencem amanhã</div>
-    <div style="font-size:26px;font-weight:700;color:#e74c3c;margin-top:4px;">{{ total_amanha }}</div>
-  </div>
-  <div style="background:#f9f9f9;border-radius:12px;padding:1rem;text-align:center;">
-    <div style="font-size:12px;color:#888;">Colocar em promoção</div>
-    <div style="font-size:26px;font-weight:700;color:#b7770d;margin-top:4px;">{{ total_colocar_promocao }}</div>
-  </div>
+<sup class="hint" style="font-size: 7pt; width: 100%; text-align: center;">* Os valores representam a soma das quantidades dos lotes em cada categoria.</sup>
+
+<!-- 6 cards -->
+<div class="grid-cards">
+  <div class="card-stat"><div class="label">Total de itens</div><div class="value" style="color:#2d3436;">{{ total_itens }}</div></div>
+  <div class="card-stat"><div class="label">Em promoção</div><div class="value" style="color:#fd7e14;">{{ total_em_promocao }}</div></div>
+  <div class="card-stat"><div class="label">Vencem amanhã</div><div class="value" style="color:#e74c3c;">{{ total_amanha }}</div></div>
+  <div class="card-stat"><div class="label">Colocar em promoção</div><div class="value" style="color:#b7770d;">{{ total_oportunidade }}</div></div>
+  <div class="card-stat"><div class="label">Vencidos</div><div class="value" style="color:#c0392b;">{{ total_vencidos }}</div></div>
+  <div class="card-stat"><div class="label">Estoque normal</div><div class="value" style="color:#27ae60;">{{ total_normal }}</div></div>
 </div>
 
-<div class="card">
-  <div class="card-title">Próximos a vencer — todos os produtos</div>
+<!-- Lista 1-->
+<div class="card-title">🏷️ Oportunidade de promoção</div>
+<div class="card-list scrollable-list">
+  {% for item in lotes_oportunidade %}
+  <div class="card-list-item">
+    <div class="prod-icon">{{ item.produto.emoji }}</div>
+    <div class="prod-info">
+      <b>{{ item.produto.nome }}</b>
+      <span>Lote {{ item.lote.numero_lote|default:"—" }} · val. {{ item.lote.data_validade|date:"d/m/Y" }}</span>
+      <span>{{ item.quantidade }} UN</span>
+    </div>
+    <span class="badge" style="background:#f0edfb; color:#6c3483;">{{ item.dias }}d</span>
+  </div>
+  {% empty %}
+  <div class="card-list-item" style="justify-content: center;">Nenhum lote com oportunidade</div>
+  {% endfor %}
+</div>
+
+<!-- Lista 2-->
+<div class="card-title">📅 Próximos a vencer (até 15 dias)</div>
+<div class="card-list scrollable-list">
   {% for item in lotes_proximos %}
-  <div class="product-row">
-    <div class="prod-img">{{ item.lote.produto.emoji }}</div>
+  <div class="card-list-item">
+    <div class="prod-icon">{{ item.lote.produto.emoji }}</div>
     <div class="prod-info">
-      <div class="prod-name">{{ item.lote.produto.nome }}</div>
-      <div class="prod-code">Lote {{ item.lote.numero_lote|default:"—" }} · val. {{ item.lote.data_validade|date:"d/m/Y" }}</div>
+      <b>{{ item.lote.produto.nome }}</b>
+      <span>Lote {{ item.lote.numero_lote|default:"—" }} · val. {{ item.lote.data_validade|date:"d/m/Y" }}</span>
+      <span>{{ item.quantidade }} UN</span>
     </div>
-    {% if item.dias <= 0 %}
-      <span class="badge badge-red">hoje</span>
-    {% elif item.dias == 1 %}
-      <span class="badge badge-red">amanhã</span>
-    {% elif item.dias <= 7 %}
-      <span class="badge badge-red">{{ item.dias }} dias</span>
-    {% else %}
-      <span class="badge badge-orange">{{ item.dias }} dias</span>
-    {% endif %}
+    <span class="badge badge-orange">{{ item.dias }}d</span>
   </div>
   {% empty %}
-  <div class="hint" style="padding:1rem 0;">Nenhum lote próximo do vencimento.</div>
+  <div class="card-list-item" style="justify-content: center;">Nenhum lote próximo</div>
   {% endfor %}
 </div>
 
-<div class="card">
-  <div class="card-title">Colocar em promoção</div>
-  {% for lote in lotes_colocar %}
-  <div class="product-row">
-    <div class="prod-img">{{ lote.produto.emoji }}</div>
-    <div class="prod-info">
-      <div class="prod-name">{{ lote.produto.nome }}</div>
-      <div class="prod-code">Lote {{ lote.numero_lote|default:"—" }} · val. {{ lote.data_validade|date:"d/m/Y" }}</div>
-    </div>
-    <span class="badge" style="background:#f0edfb;color:#6c3483;">Pendente</span>
-  </div>
-  {% empty %}
-  <div class="hint" style="padding:1rem 0;">Nenhum lote pendente.</div>
-  {% endfor %}
-</div>
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+
+{% block title %}FreshStock - Editar Lote{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina">Editar lote</div>
+  <a href="{% url 'correcao' %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<div style="background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+  <div><strong>{{ lote.produto.emoji }} {{ lote.produto.nome }}</strong></div>
+  <div>Lote: {{ lote.numero_lote|default:"s/n" }} | Validade: {{ lote.data_validade|date:"d/m/Y" }}</div>
+  <div>Quantidade atual: {{ lote.quantidade }} UN</div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="field">
+    <label>Nova quantidade (UN)</label>
+    <input type="number" name="quantidade" value="{{ lote.quantidade }}" min="0" required>
+  </div>
+  <div class="field">
+    <label>Status</label>
+    <select name="status">
+      {% for value, label in lote.STATUS_CHOICES %}
+        <option value="{{ value }}" {% if lote.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-dark">Salvar alterações</button>
+</form>
+{% endblock %}

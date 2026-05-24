@@ -39,6 +39,17 @@ FIXTURE_DIRS = [
     os.path.join(BASE_DIR, 'fixtures'),
 ]
 
+# This must be a URL path for the browser, NOT a folder path
+STATIC_URL = '/static/'
+
+# Tell Django exactly where your folder is located on disk
+STATICFILES_DIRS = [
+    BASE_DIR / 'core' / 'templates' / 'core' / 'assets',
+]
+
+# Required location where files compile during 'collectstatic'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 # ── Installed apps ────────────────────────────────────────────────────────────
 # Only the default Django apps are included. No custom app is needed yet —
 # the hello-world view lives directly in config/views.py.
@@ -136,6 +147,10 @@ else:
         }
     }
 AUTH_USER_MODEL = 'core.Usuario'
+
+# ── Authentication ───────────────────────────────────────────────────────────
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/menu'
 
 # ── Password validation ───────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [

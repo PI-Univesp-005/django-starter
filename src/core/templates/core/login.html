@@ -1,19 +1,24 @@
+
 {% extends "core/base.html" %}
 
-{% block title %}Login — Estoque+Validade{% endblock %}
+{% block user_badge %}{% endblock %}
+
+{% load static %}  
+
+{% block title %}FreshStock — Login{% endblock %}
 
 {% block content %}
-<div style="text-align:center; padding: 1.5rem 0 0.5rem;">
-  <div style="font-size:22px; font-weight:700; color:#1a1a2e;">Estoque+Validade</div>
-  <div style="font-size:13px; color:#888; margin-top:4px;">Mercearia Japonesa — Jaguaré</div>
+<div style="margin-bottom: -5px;display: flex; justify-content: center; align-items: center; flex-direction: column;">
+  <img src="{% static 'img/logo_brand.png' %}" alt="Logo FreshStock" style="width: 44%; background: white; padding: 10px;" />
+  <sup class="subtitle">Evite desperdício. Reduza custos.</sup>
 </div>
 
-<div class="card">
+<div style="background: white; border: 1px solid #f1f2f6; border-radius: 15px; padding: 20px; margin-top: 10px;">
   <form method="post">
     {% csrf_token %}
     <div class="field">
       <label>Usuário</label>
-      <input type="text" name="username" placeholder="seu nome de usuário" required />
+      <input type="text" name="username" placeholder="Seu usuário" required />
     </div>
     <div class="field">
       <label>Senha</label>
@@ -23,5 +28,5 @@
   </form>
 </div>
 
-<div class="hint">PI UNIVESP 2026 — Grupo PI-Univesp-005</div>
+<div class="hint" style="margin-top: 20px;">PI-005 UNIVESP 2026</div>
 {% endblock %}

@@ -1,22 +1,30 @@
 {% extends "core/base.html" %}
 
-{% block title %}Cadastrar Produto — Estoque+Validade{% endblock %}
+{% block title %}FreshStock - Cadastrar Produto{% endblock %}
 
 {% block content %}
-<div class="topbar">
-  <a href="{% url 'menu' %}" class="back-btn">← Voltar</a>
-  <div class="topbar-title">Cadastrar / editar produto</div>
-  <span class="role-badge role-{% if user.perfil == 'gerente' %}adm{% else %}lider{% endif %}">
-    {% if user.perfil == 'gerente' %}ADM{% else %}Líder{% endif %}
-  </span>
+<div class="topo-navegacao">
+  <div class="titulo-pagina">📝 Cadastrar / Editar produto</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
 </div>
 
-<div class="card">
+<div style="background: white; border: 1px solid #f1f2f6; border-radius: 15px; padding: 20px;">
   <form method="post">
     {% csrf_token %}
     <div class="field">
-      <label>Emoji do produto</label>
-      <input type="text" name="emoji" value="{{ produto.emoji|default:'📦' }}" maxlength="10" />
+      <label>Categoria do produto</label>
+      <select name="emoji" required>
+        <option value="📦" {% if produto.emoji == '📦' %}selected{% endif %}>📦 Embalados / Geral</option>
+        <option value="🥫" {% if produto.emoji == '🥫' %}selected{% endif %}>🥫 Enlatados</option>
+        <option value="🍫" {% if produto.emoji == '🍫' %}selected{% endif %}>🍫 Chocolates / Doces</option>
+        <option value="🥤" {% if produto.emoji == '🥤' %}selected{% endif %}>🥤 Bebidas</option>
+        <option value="🍞" {% if produto.emoji == '🍞' %}selected{% endif %}>🍞 Pão / Padaria</option>
+        <option value="🥚" {% if produto.emoji == '🥚' %}selected{% endif %}>🥚 Ovos / Laticínios</option>
+        <option value="🧴" {% if produto.emoji == '🧴' %}selected{% endif %}>🧴 Limpeza / Higiene</option>
+        <option value="🧼" {% if produto.emoji == '🧼' %}selected{% endif %}>🧼 Higiene Pessoal</option>
+        <option value="🥕" {% if produto.emoji == '🥕' %}selected{% endif %}>🥕 Frutas / Verduras</option>
+        <option value="🥩" {% if produto.emoji == '🥩' %}selected{% endif %}>🥩 Carnes / Proteínas</option>
+      </select>
     </div>
     <div class="field">
       <label>Nome do produto</label>
@@ -24,7 +32,7 @@
     </div>
     <div class="field">
       <label>Código de barras</label>
-      <input type="text" name="codigo_barras" value="{{ produto.codigo_barras|default:'' }}" />
+      <input type="text" name="codigo_barras" value="{{ produto.codigo_barras|default:'' }}" pattern="[0-9]*" inputmode="numeric" title="Apenas números são permitidos" />
     </div>
     <div class="field">
       <label>Descrição</label>
@@ -36,8 +44,29 @@
     </div>
     <button type="submit" class="btn btn-dark">Salvar produto</button>
     {% if produto %}
-    <a href="{% url 'deletar_produto' produto.pk %}" class="btn btn-red" style="margin-top:8px;display:block;text-align:center;text-decoration:none;">Excluir produto</a>
+    <a href="{% url 'deletar_produto' produto.pk %}" data-delete-produto class="btn btn-red" style="display: block; text-align: center; text-decoration: none; margin-top: 10px;">Excluir produto</a>
     {% endif %}
   </form>
 </div>
+
+<script>
+  document.querySelectorAll('[data-delete-produto]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Deseja realmente excluir este produto? Esta ação é irreversível.')) {
+        fetch(this.href, {
+          method: 'DELETE',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        }).then(response => {
+          if (response.ok) {
+            alert('Produto excluído com sucesso!');
+            window.location.href = '{% url "estoque_lista" %}';
+          } else {
+            alert('Erro ao excluir produto.');
+          }
+        }).catch(err => console.error('Error:', err));
+      }
+    });
+  });
+</script>
 {% endblock %}

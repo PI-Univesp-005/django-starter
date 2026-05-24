@@ -1,0 +1,62 @@
+{% extends "core/base.html" %}
+
+{% block title %}FreshStock - Correção de Estoque (por lote){% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina">🔧 Correção por lote</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<div class="alert-box alert-warning">
+  Atenção: alterar a quantidade de um lote afeta diretamente o total do produto.
+</div>
+
+<!-- Filtro por produto -->
+<form method="get" style="margin-bottom: 20px;">
+  <div class="field">
+    <label>Filtrar por produto</label>
+    <select name="produto" onchange="this.form.submit()">
+      <option value="">Todos os produtos</option>
+      {% for produto in produtos %}
+        <option value="{{ produto.id }}" {% if produto_selecionado == produto.id %}selected{% endif %}>
+          {{ produto.emoji }} {{ produto.nome }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<div class="scrollable-list" style="overflow-x: auto; max-height:65vh;">
+  <table class="lot-table">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Lote</th>
+        <th>Validade</th>
+        <th>Quantidade (UN)</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lote in lotes %}
+      <tr>
+        <td>{{ lote.produto.emoji }} {{ lote.produto.nome }}</td>
+        <td>{{ lote.numero_lote|default:"—" }}</td>
+        <td>{{ lote.data_validade|date:"d/m/Y" }}</td>
+        <td style="font-weight: 600;">{{ lote.quantidade }}</td>
+        <td>{{ lote.get_status_display }}</td>
+        <td>
+          <a href="{% url 'correcao_editar_lote' lote.pk %}" class="btn-edit-small" title="Editar">✏️</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align: center;">Nenhum lote encontrado.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

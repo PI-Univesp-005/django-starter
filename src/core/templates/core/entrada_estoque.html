@@ -1,29 +1,64 @@
 {% extends "core/base.html" %}
 
-{% block title %}Entrada de Estoque — Estoque+Validade{% endblock %}
+{% block title %}Entrada de Estoque — {{ produto.nome }}{% endblock %}
 
 {% block content %}
-<div class="topbar">
-  <a href="{% url 'estoque_detalhe' produto.pk %}" class="back-btn">← Voltar</a>
-  <div class="topbar-title">Entrada de estoque</div>
+<div class="topo-navegacao">
+  <div class="titulo-pagina">🚚 Entrada de estoque</div>
+  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn-voltar">← Voltar</a>
 </div>
 
-<div class="card">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <div class="prod-img" style="width:52px;height:52px;font-size:26px;">{{ produto.emoji }}</div>
-    <div>
-      <div style="font-size:16px;font-weight:700;color:#1a1a2e;">{{ produto.nome }}</div>
-      <div style="font-size:12px;color:#888;">Estoque atual: {{ produto.quantidade_total }} UN</div>
+<div style="background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+  <div><strong>{{ produto.emoji }} {{ produto.nome }}</strong></div>
+  <div>Total atual: <span id="total-atual">{{ produto.quantidade_total }}</span> UN</div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="field">
+    <label>Selecionar lote:</label>
+    <select name="lote_id" id="lote-select" required>
+      <option value="novo">+ Criar novo lote</option>
+      {% for lote in lotes %}
+        <option value="{{ lote.id }}">
+          Lote {{ lote.numero_lote|default:"s/n" }} - Validade: {{ lote.data_validade|date:"d/m/Y" }} (atual: {{ lote.quantidade }} UN)
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="campos-novo-lote" style="display: none; margin-top: 15px; padding: 10px; background: #f1f2f6; border-radius: 8px;">
+    <div class="field">
+      <label>Número do lote (opcional)</label>
+      <input type="text" name="numero_lote" placeholder="Ex: Lote 001">
+    </div>
+    <div class="field">
+      <label>Data de validade</label>
+      <input type="date" name="data_validade" id="data_validade">
     </div>
   </div>
-  <form method="post">
-    {% csrf_token %}
-    <div class="field">
-      <label>Quantidade a adicionar</label>
-      <input type="number" name="quantidade" min="1" placeholder="Ex: 10" required style="font-size:24px;font-weight:700;text-align:center;" />
-    </div>
-    <button type="submit" class="btn btn-green">Confirmar entrada</button>
-  </form>
-  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn btn-outline">Cancelar</a>
-</div>
+
+  <div class="field">
+    <label>Quantidade a adicionar (UN)</label>
+    <input type="number" name="quantidade" min="1" required>
+  </div>
+
+  <button type="submit" class="btn btn-green">Registrar entrada</button>
+</form>
+
+<script>
+  const select = document.getElementById('lote-select');
+  const camposNovo = document.getElementById('campos-novo-lote');
+  function toggleNovoLote() {
+    if (select.value === 'novo') {
+      camposNovo.style.display = 'block';
+      document.getElementById('data_validade').setAttribute('required', 'required');
+    } else {
+      camposNovo.style.display = 'none';
+      document.getElementById('data_validade').removeAttribute('required');
+    }
+  }
+  select.addEventListener('change', toggleNovoLote);
+  toggleNovoLote();
+</script>
 {% endblock %}
