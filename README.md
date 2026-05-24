@@ -14,6 +14,8 @@ Sistema de controle de estoque com rastreamento de validade de produtos, distrib
 
 <sub>Desenvolvido como projeto integrador para o programa de Graduação em Engenharia de Software, Ciência de Dados ou TI da **UNIVESP**.</sub>
 
+**Caso precise de acesso à documentação anterior, sobre a infra-estrutura do projeto e os guias, <u><a href="docs/indice_guias.md">clique aqui</a></u>**.
+
 ---
 
 ## 📋 Índice
