@@ -1,0 +1,67 @@
+{% extends "core/base.html" %}
+
+{% block title %}Zerar estoque - FreshStock{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina"> 🗑️ Zerar estoque</div>
+  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn-voltar">← Voltar</a>
+</div>
+
+{% if lotes %}
+<div class="alert-box alert-warning">
+  Atenção: ainda existem lotes cadastrados para este produto.
+</div>
+{% endif %}
+
+<div style="background: #f8f9fa; border-radius: 15px; padding: 15px; display: flex; align-items: center; margin-bottom: 20px; border: 1px solid #f1f2f6;">
+  <div class="prod-icon">{{ produto.emoji }}</div>
+  <div class="prod-info" style="flex: 1;">
+    <b>{{ produto.nome }}</b>
+    <span style="font-size: 11px;">Estoque atual: {{ produto.quantidade_total }} UN</span>
+  </div>
+</div>
+
+{% if lotes %}
+<div class="card-title">Lotes cadastrados</div>
+<div style="overflow-x: auto; margin-bottom: 20px;">
+  <table class="lot-table">
+    <tr>
+      <th>LOTE</th>
+      <th>VALIDADE</th>
+      <th>STATUS</th>
+    </tr>
+    {% for lote in lotes %}
+    <tr>
+      <td>{{ lote.numero_lote|default:"—" }}</td>
+      <td>{{ lote.data_validade|date:"d/m/Y" }}</td>
+      <td>{{ lote.get_status_display }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<form method="post" style="background: white; border: 1px solid #f1f2f6; border-radius: 15px; padding: 20px;">
+  {% csrf_token %}
+  <div style="background: #fef9e7; border-radius: 12px; padding: 14px; margin-bottom: 14px; border: 1px solid #f1c40f;">
+    <div style="font-size: 13px; color: #333; margin-bottom: 12px; font-weight: 600;">Deseja excluir os lotes junto com zerar o estoque?</div>
+    <div style="display: flex; gap: 8px;">
+      <button type="submit" name="excluir_lotes" value="sim" class="btn btn-red" style="flex: 1; margin-bottom: 0;">Sim, excluir lotes</button>
+      <button type="submit" name="excluir_lotes" value="nao" class="btn btn-gray" style="flex: 1; margin-bottom: 0;">Não, manter lotes</button>
+    </div>
+  </div>
+</form>
+
+{% else %}
+<form method="post" style="background: white; border: 1px solid #f1f2f6; border-radius: 15px; padding: 20px;">
+  {% csrf_token %}
+  <div style="background: #fde8e8; border-radius: 12px; padding: 14px; margin-bottom: 14px; border: 1px solid #e74c3c;">
+    <div style="font-size: 13px; color: #333; margin-bottom: 12px; font-weight: 600;">Confirma zerar o estoque?</div>
+    <div style="display: flex; gap: 8px;">
+      <button type="submit" name="excluir_lotes" value="nao" class="btn btn-red" style="flex: 1; margin-bottom: 0;">Sim, zerar</button>
+      <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn btn-outline" style="flex: 1; text-align: center; text-decoration: none; margin-bottom: 0;">Cancelar</a>
+    </div>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

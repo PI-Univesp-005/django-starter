@@ -1,0 +1,72 @@
+{% extends "core/base.html" %}
+
+{% block title %}FreshStock - Estoque{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina"> 🗘 Movimentação de estoque</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<form method="get" style="margin-bottom: 15px;">
+  <div class="busca-container">
+    <span>🔍</span>
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar produto..." />
+  </div>
+
+  <div class="filtros-pills">
+    <a href="{% url 'estoque_lista' %}" class="pill {% if not filtro %}active{% endif %}">Todos</a>
+    <a href="?filtro=margem" class="pill {% if filtro == 'margem' %}active{% endif %}" style="{% if filtro == 'margem' %}background: #fef9e7; color: #b7770d; border-color: #b7770d;{% endif %}">📊 Margem promoção</a>
+    <a href="?filtro=amanha" class="pill pill-aviso {% if filtro == 'amanha' %}active{% endif %}" style="{% if filtro == 'amanha' %}background: #ff7675; color: white; border-color: #ff7675;{% endif %}">⚠️ Vencidos / Amanhã</a>
+  </div>
+  <div class="hint" style="margin-top: 6px; font-size: 11px; color:#636e72;">
+    • Margem promoção: apenas produtos com lote válido vencendo dentro do prazo promocional.<br>
+    • Vencidos/Amanhã: produtos que possuem lote já vencido ou que vence amanhã.
+  </div>
+</form>
+
+<div class="card-list scrollable-list" style="max-height: 430px;">
+  {% for item in produtos_lista %}
+  <div class="card-list-item">
+    <div class="prod-icon">{{ item.produto.emoji }}</div>
+    <div class="prod-info">
+      <b>{{ item.produto.nome }}</b>
+      <span>{{ item.produto.codigo_barras }}</span>
+      {% if item.lote_urgente %}
+        <span style="font-weight: 600; color: {% if item.dias_urgente <= 1 %}#e74c3c{% elif item.dias_urgente <= item.produto.dias_margem_promocao %}#fd7e14{% else %}#27ae60{% endif %};">
+          📅 Vence: {{ item.lote_urgente.data_validade|date:"d/m/Y" }}
+        </span>
+      {% endif %}
+    </div>
+    <div class="prod-qtd">
+      <div style="font-size: 14px; font-weight: 700; color: #2d3436;">{{ item.quantidade_total }} UN</div>
+      {% if item.dias_urgente is not None %}
+        {% if item.dias_urgente == 0 %}
+          <span class="badge badge-red" style="display: inline-block; margin-top: 2px;">vence hoje</span>
+        {% elif item.dias_urgente == 1 %}
+          <span class="badge badge-red" style="display: inline-block; margin-top: 2px;">amanhã</span>
+        {% elif item.dias_urgente < 0 %}
+          <span class="badge badge-red" style="display: inline-block; margin-top: 2px;">{{ item.dias_urgente }}d</span>
+        {% elif item.dias_urgente <= item.produto.dias_margem_promocao %}
+          <span class="badge badge-orange" style="display: inline-block; margin-top: 2px;">{{ item.dias_urgente }}d</span>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% if user.perfil == 'funcionario_lider' or user.perfil == 'gerente' %}
+    <a href="{% url 'cadastro_produto_editar' item.produto.pk %}" class="btn-action" title="Editar">✏️</a>
+    {% endif %}
+    <a href="{% url 'estoque_detalhe' item.produto.pk %}" class="btn-action" title="Abrir">›</a>
+  </div>
+  {% empty %}
+  <div style="text-align: center; padding: 30px; color: #b2bec3; font-size: 13px;">
+    Nenhum produto encontrado.
+  </div>
+  {% endfor %}
+</div>
+
+{% if user.perfil == 'funcionario_lider' or user.perfil == 'gerente' %}
+<a href="{% url 'cadastro_produto' %}" class="btn btn-outline">+ Cadastrar novo produto</a>
+{% endif %}
+
+<div class="hint" style="margin-top: 12px;">Toque em › para ver lotes e movimentar estoque</div>
+{% endblock %}

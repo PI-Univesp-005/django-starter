@@ -34,6 +34,21 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 _raw_hosts = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1")
 ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
 
+# ── Fixtures setup ────────────────────────────────────────────────────────────
+FIXTURE_DIRS = [
+    os.path.join(BASE_DIR, 'fixtures'),
+]
+
+# This must be a URL path for the browser, NOT a folder path
+STATIC_URL = '/static/'
+
+# Tell Django exactly where your folder is located on disk
+STATICFILES_DIRS = [
+    BASE_DIR / 'core' / 'templates' / 'core' / 'assets',
+]
+
+# Required location where files compile during 'collectstatic'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # ── Installed apps ────────────────────────────────────────────────────────────
 # Only the default Django apps are included. No custom app is needed yet —
@@ -131,7 +146,11 @@ else:
             "NAME": "/app/db.sqlite3",
         }
     }
+AUTH_USER_MODEL = 'core.Usuario'
 
+# ── Authentication ───────────────────────────────────────────────────────────
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/menu'
 
 # ── Password validation ───────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
@@ -141,6 +160,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
 
 # ── Internationalisation ──────────────────────────────────────────────────────
 LANGUAGE_CODE = "en-us"

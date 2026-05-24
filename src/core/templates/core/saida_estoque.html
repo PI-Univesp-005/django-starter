@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+
+{% block title %}Saída de estoque - {{ produto.nome }} - FreshStock{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina">💰 Saída do estoque</div>
+  <a href="{% url 'estoque_detalhe' produto.pk %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<div style="background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+  <div><strong>{{ produto.emoji }} {{ produto.nome }}</strong></div>
+  <div>Total atual: {{ produto.quantidade_total }} UN</div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="field">
+    <label>Selecionar lote:</label>
+    <select name="lote_id" required>
+      {% for lote in lotes %}
+        <option value="{{ lote.id }}">
+          Lote {{ lote.numero_lote|default:"s/n" }} - Validade: {{ lote.data_validade|date:"d/m/Y" }} (disp.: {{ lote.quantidade }} UN)
+        </option>
+      {% empty %}
+        <option disabled>Nenhum lote com estoque disponível</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Quantidade a retirar (UN)</label>
+    <input type="number" name="quantidade" min="1" required>
+  </div>
+
+  <button type="submit" class="btn btn-red">Registrar saída</button>
+</form>
+{% endblock %}

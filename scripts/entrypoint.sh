@@ -89,12 +89,23 @@ else
     printf "$PFX 🗄️ \033[1m DB=sqlite — no external service to wait for.\033[0m\n"
 fi
 
-# ── Step 4: Migrate and serve ─────────────────────────────────────────────────
+# ── Step 4: Migrate, load fixtures and serve ─────────────────────────────────────────────────
 printf "$PFX 🔄 \033[1mRunning database migrations ...\033[0m\n"
-python scripts/manage.py migrate --noinput
 
-printf "\n\033[3mDone, ready to start the server...\033[0m\n\n"
-printf "$PFX 🚀 \033[1mStarting Django development server on\033[0m http://0.0.0.0:$PORT ...\n"
+python scripts/manage.py migrate --noinput
+if [ "$ENV" != "production" ]; then
+    printf "\n$PFX 🔍 \033[1mChecking database state ...\033[0m\n"
+    # Executa o check em uma única linha para evitar IndentationError
+    # Usa get_user_model() para prevenir crash caso exista um Custom User Model
+    if python scripts/manage.py shell -c "import sys; from django.contrib.auth import get_user_model; sys.exit(1 if get_user_model().objects.exists() else 0)" > /dev/null 2>&1; then
+        printf "$PFX 🌱 \033[1mDatabase is fresh. Loading initial data fixtures ...\033[0m\n\t  "
+        python scripts/manage.py loaddata /app/fixtures/initial_data.json
+    else
+        printf "$PFX ⚠️  \033[1mDatabase already populated. Skipping fixtures.\033[0m\n"
+    fi
+fi
+
+printf "$PFX 🚀 \033[1mDjango development server has started on\033[0m http://0.0.0.0:$PORT\n"
 printf "$PFX 🛢️  \033[1mDatabase backend:\033[0m $DB\n"
 printf "\n"
 

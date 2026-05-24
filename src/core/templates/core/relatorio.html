@@ -1,0 +1,104 @@
+{% extends "core/base.html" %}
+
+{% block title %}FreshStock - Relatórios{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Cards responsivos – ocupam toda largura disponível */
+.grid-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+.card-stat {
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 4px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: 0.1s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 72px;  /* garante altura mínima consistente */
+}
+.card-stat:hover {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.card-stat .label {
+    font-size: 11px;
+    color: #b2bec3;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.card-stat .value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+@media (max-width: 500px) {
+    .grid-cards {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina"> 📈 Relatórios</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<sup class="hint" style="font-size: 7pt; width: 100%; text-align: center;">* Os valores representam a soma das quantidades dos lotes em cada categoria.</sup>
+
+<!-- 6 cards -->
+<div class="grid-cards">
+  <div class="card-stat"><div class="label">Total de itens</div><div class="value" style="color:#2d3436;">{{ total_itens }}</div></div>
+  <div class="card-stat"><div class="label">Em promoção</div><div class="value" style="color:#fd7e14;">{{ total_em_promocao }}</div></div>
+  <div class="card-stat"><div class="label">Vencem amanhã</div><div class="value" style="color:#e74c3c;">{{ total_amanha }}</div></div>
+  <div class="card-stat"><div class="label">Colocar em promoção</div><div class="value" style="color:#b7770d;">{{ total_oportunidade }}</div></div>
+  <div class="card-stat"><div class="label">Vencidos</div><div class="value" style="color:#c0392b;">{{ total_vencidos }}</div></div>
+  <div class="card-stat"><div class="label">Estoque normal</div><div class="value" style="color:#27ae60;">{{ total_normal }}</div></div>
+</div>
+
+<!-- Lista 1-->
+<div class="card-title">🏷️ Oportunidade de promoção</div>
+<div class="card-list scrollable-list">
+  {% for item in lotes_oportunidade %}
+  <div class="card-list-item">
+    <div class="prod-icon">{{ item.produto.emoji }}</div>
+    <div class="prod-info">
+      <b>{{ item.produto.nome }}</b>
+      <span>Lote {{ item.lote.numero_lote|default:"—" }} · val. {{ item.lote.data_validade|date:"d/m/Y" }}</span>
+      <span>{{ item.quantidade }} UN</span>
+    </div>
+    <span class="badge" style="background:#f0edfb; color:#6c3483;">{{ item.dias }}d</span>
+  </div>
+  {% empty %}
+  <div class="card-list-item" style="justify-content: center;">Nenhum lote com oportunidade</div>
+  {% endfor %}
+</div>
+
+<!-- Lista 2-->
+<div class="card-title">📅 Próximos a vencer (até 15 dias)</div>
+<div class="card-list scrollable-list">
+  {% for item in lotes_proximos %}
+  <div class="card-list-item">
+    <div class="prod-icon">{{ item.lote.produto.emoji }}</div>
+    <div class="prod-info">
+      <b>{{ item.lote.produto.nome }}</b>
+      <span>Lote {{ item.lote.numero_lote|default:"—" }} · val. {{ item.lote.data_validade|date:"d/m/Y" }}</span>
+      <span>{{ item.quantidade }} UN</span>
+    </div>
+    <span class="badge badge-orange">{{ item.dias }}d</span>
+  </div>
+  {% empty %}
+  <div class="card-list-item" style="justify-content: center;">Nenhum lote próximo</div>
+  {% endfor %}
+</div>
+
+{% endblock %}

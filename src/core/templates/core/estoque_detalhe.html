@@ -1,0 +1,241 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ produto.nome }} — FreshStock{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina">🗄️ Estoque ⬩ <span style="font-weight:lighter;">{{ produto.nome }}</span></div>
+  <a href="{% url 'estoque_lista' %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<div style="background: #f8f9fa; border-radius: 15px; padding: 15px; display: flex; align-items: center; margin-bottom: 20px; border: 1px solid #f1f2f6;">
+  <div class="prod-icon" style="width: 50px; height: 50px; font-size: 24px;">{{ produto.emoji }}</div>
+  <div class="prod-info" style="flex: 1;">
+    <b style="font-size: 16px;">{{ produto.nome }}</b>
+    <span style="font-size: 11px;">Cód. {{ produto.codigo_barras }}</span>
+  </div>
+  <div style="text-align: right;">
+    <div id="quantidade-total" style="font-size: 20px; font-weight: 700; color: #2d3436;">{{ quantidade_total }} UN</div>
+    <span style="font-size: 9px; color: #b2bec3;">total estoque</span>
+  </div>
+</div>
+
+<div class="card-title">Lotes cadastrados</div>
+<div style="overflow-x: auto; margin-bottom: 20px;">
+  <table class="lot-table">
+    <thead>
+      <tr>
+        {% if user.perfil != 'funcionario' %}
+        <th style="width: 50px;">AÇÃO</th>
+        {% endif %}
+        <th>LOTE</th>
+        <th>VALIDADE</th>
+        <th style="text-align: center; width: 60px;">UN</th>
+        <th>VENCE EM</th>
+        <th>STATUS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in lotes_info %}
+      <tr>
+        {% if user.perfil != 'funcionario' %}
+        <td style="text-align: center;">
+          <div style="display: flex; gap: 4px; justify-content: center;">
+            <a href="{% url 'editar_lote' item.lote.pk %}" class="btn-edit-small">✏️</a>
+            <a class="btn-delete-small" data-delete-lote href="{% url 'deletar_lote' item.lote.pk %}">🗑</a>
+          </div>
+        </td>
+        {% endif %}
+        <td>{{ item.lote.numero_lote|default:"—" }}</td>
+        <td>{{ item.lote.data_validade|date:"d/m/Y" }}</td>
+        <td style="text-align: center; font-weight: 600;">{{ item.quantidade }}</td>
+        <td style="font-weight: 600; color: {% if item.dias <= 1 %}#e74c3c{% elif item.dias <= produto.dias_margem_promocao %}#fd7e14{% else %}#27ae60{% endif %};">
+          {% if item.dias == 0 %}hoje{% elif item.dias == 1 %}amanhã{% elif item.dias < 0 %}{{ item.dias }}d{% else %}{{ item.dias }}d{% endif %}
+        </td>
+        <td>
+          {% if user.perfil == 'funcionario' %}
+            {{ item.lote.get_status_display }}
+          {% else %}
+            <form method="post" action="{% url 'atualizar_status_lote' item.lote.pk %}" data-update-status style="display: inline;">
+              {% csrf_token %}
+              <select name="status" onchange="this.form.submit()" style="padding: 5px; border-radius: 6px; border: 1px solid #dfe6e9; font-size: 10px; background: white; outline: none;">
+                <option value="estoque" {% if item.lote.status == 'estoque' %}selected{% endif %}>Estoque</option>
+                <option value="colocar_promocao" {% if item.lote.status == 'colocar_promocao' %}selected{% endif %}>Colocar promo</option>
+                <option value="promocao" {% if item.lote.status == 'promocao' %}selected{% endif %}>Em promoção</option>
+                <option value="vencido" {% if item.lote.status == 'vencido' %}selected{% endif %}>Vencido</option>
+              </select>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="{% if user.perfil != 'funcionario' %}6{% else %}5{% endif %}" style="text-align: center; color: #b2bec3; padding: 1rem;">
+          Nenhum lote cadastrado.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if user.perfil != 'funcionario' and produto %}
+<div style="background: #fafbfc; border: 1px dashed #dfe6e9; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+  <div class="card-title" style="margin-bottom: 12px;">Adicionar novo lote</div>
+  <form method="post" action="{% url 'adicionar_lote' pk=produto.id %}">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="field" style="flex: 0.6; margin-bottom: 0;">
+        <label>Nº do lote (opcional)</label>
+        <input type="text" name="numero_lote" placeholder="Ex: 3030" />
+      </div>
+      <div class="field-wrapper">
+        <div class="field" style="flex: 1; margin-bottom: 0;">
+          <label>Data de validade</label>
+          <input type="date" name="data_validade" required />
+        </div>
+        <div class="field" style="flex: 0.6; margin-bottom: 0;">
+          <label>Quantidade (UN)</label>
+          <input type="number" name="quantidade" placeholder="0" min="0" required />
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-green">+ Adicionar lote</button>
+  </form>
+</div>
+{% endif %}
+
+{% if user.perfil != 'funcionario' and produto %}
+<div class="card-title">Movimentar estoque</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+  <a href="{% url 'entrada_estoque' pk=produto.id %}" class="btn btn-green" style="text-decoration: none;">+ Entrada</a>
+  <div class="tooltip-container">
+    <a id="saida-btn" href="{% url 'saida_estoque' pk=produto.id %}" class="btn btn-red" style="text-decoration: none;" data-tooltip="Sem itens em estoque. Adicione uma entrada antes.">− Saída</a>
+  </div>
+</div>
+<a href="{% url 'zerar_estoque' pk=produto.id %}" class="btn btn-gray">Zerar estoque</a>
+{% endif %}
+
+<script>
+  const qtde_total = Number("{{ quantidade_total|escapejs }}");
+  const saidaBtn = document.getElementById('saida-btn');
+  
+  if (saidaBtn && !isNaN(qtde_total) && qtde_total === 0) {
+    saidaBtn.setAttribute('disabled', '');
+    saidaBtn.removeAttribute('href');
+    
+    let tooltipElement = null;
+    
+    saidaBtn.addEventListener('mouseenter', function() {
+      const tooltipText = 'Sem estoque. Adicione entrada antes.';
+      tooltipElement = document.createElement('div');
+      tooltipElement.textContent = tooltipText;
+      tooltipElement.style.cssText = `
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e5a7a;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        white-space: nowrap;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        pointer-events: none;
+      `;
+      saidaBtn.parentElement.style.position = 'relative';
+      saidaBtn.parentElement.appendChild(tooltipElement);
+    });
+    
+    saidaBtn.addEventListener('mouseleave', function() {
+      if (tooltipElement && tooltipElement.parentElement) {
+        tooltipElement.remove();
+        tooltipElement = null;
+      }
+    });
+  }
+
+  // Modal de confirmação para exclusão de lote (mesmo estilo usado anteriormente)
+  (function() {
+    // Cria o modal dinamicamente se não existir
+    if (!document.getElementById('confirmModal')) {
+      const modalHtml = `
+        <div id="confirmModal" class="modal-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000; visibility:hidden; opacity:0; transition:0.2s;">
+          <div style="background:white; border-radius:20px; width:300px; max-width:90%; padding:20px; text-align:center;">
+            <p id="modalMessage">Tem certeza que deseja excluir este lote?</p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+              <button id="modalConfirmBtn" style="background:#e74c3c; color:white; padding:8px 16px; border:none; border-radius:30px; cursor:pointer;">Sim, excluir</button>
+              <button id="modalCancelBtn" style="background:#dfe6e9; color:#2d3436; padding:8px 16px; border:none; border-radius:30px; cursor:pointer;">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    const modal = document.getElementById('confirmModal');
+    const modalMessage = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    const cancelBtn = document.getElementById('modalCancelBtn');
+    let pendingUrl = null;
+
+    function showModal(message, onConfirm) {
+      modalMessage.textContent = message;
+      modal.style.visibility = 'visible';
+      modal.style.opacity = '1';
+      const newConfirm = confirmBtn.cloneNode(true);
+      const newCancel = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+      newConfirm.addEventListener('click', () => {
+        modal.style.visibility = 'hidden';
+        modal.style.opacity = '0';
+        onConfirm();
+      });
+      newCancel.addEventListener('click', () => {
+        modal.style.visibility = 'hidden';
+        modal.style.opacity = '0';
+        pendingUrl = null;
+      });
+    }
+
+    document.querySelectorAll('[data-delete-lote]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const url = this.href;
+        pendingUrl = url;
+        showModal('Excluir este lote permanentemente?', () => {
+          if (pendingUrl) {
+            fetch(pendingUrl, {
+              method: 'DELETE',
+              headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            }).then(response => {
+              if (response.ok) window.location.reload();
+              else alert('Erro ao excluir lote.');
+            }).catch(err => console.error('Error:', err))
+            .finally(() => { pendingUrl = null; });
+          }
+        });
+      });
+    });
+
+    // Handle status update form with PUT method
+    document.querySelectorAll('[data-update-status]').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch(this.action, {
+          method: 'PUT',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+          body: new URLSearchParams(formData)
+        }).then(response => {
+          if (response.ok) window.location.reload();
+          else alert('Erro ao atualizar status.');
+        }).catch(err => console.error('Error:', err));
+      });
+    });
+  })();
+</script>
+{% endblock %}

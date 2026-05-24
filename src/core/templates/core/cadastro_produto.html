@@ -1,0 +1,72 @@
+{% extends "core/base.html" %}
+
+{% block title %}FreshStock - Cadastrar Produto{% endblock %}
+
+{% block content %}
+<div class="topo-navegacao">
+  <div class="titulo-pagina">📝 Cadastrar / Editar produto</div>
+  <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
+</div>
+
+<div style="background: white; border: 1px solid #f1f2f6; border-radius: 15px; padding: 20px;">
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label>Categoria do produto</label>
+      <select name="emoji" required>
+        <option value="📦" {% if produto.emoji == '📦' %}selected{% endif %}>📦 Embalados / Geral</option>
+        <option value="🥫" {% if produto.emoji == '🥫' %}selected{% endif %}>🥫 Enlatados</option>
+        <option value="🍫" {% if produto.emoji == '🍫' %}selected{% endif %}>🍫 Chocolates / Doces</option>
+        <option value="🥤" {% if produto.emoji == '🥤' %}selected{% endif %}>🥤 Bebidas</option>
+        <option value="🍞" {% if produto.emoji == '🍞' %}selected{% endif %}>🍞 Pão / Padaria</option>
+        <option value="🥚" {% if produto.emoji == '🥚' %}selected{% endif %}>🥚 Ovos / Laticínios</option>
+        <option value="🧴" {% if produto.emoji == '🧴' %}selected{% endif %}>🧴 Limpeza / Higiene</option>
+        <option value="🧼" {% if produto.emoji == '🧼' %}selected{% endif %}>🧼 Higiene Pessoal</option>
+        <option value="🥕" {% if produto.emoji == '🥕' %}selected{% endif %}>🥕 Frutas / Verduras</option>
+        <option value="🥩" {% if produto.emoji == '🥩' %}selected{% endif %}>🥩 Carnes / Proteínas</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nome do produto</label>
+      <input type="text" name="nome" value="{{ produto.nome|default:'' }}" required />
+    </div>
+    <div class="field">
+      <label>Código de barras</label>
+      <input type="text" name="codigo_barras" value="{{ produto.codigo_barras|default:'' }}" pattern="[0-9]*" inputmode="numeric" title="Apenas números são permitidos" />
+    </div>
+    <div class="field">
+      <label>Descrição</label>
+      <input type="text" name="descricao" value="{{ produto.descricao|default:'' }}" />
+    </div>
+    <div class="field">
+      <label>Margem de promoção (dias antes de vencer)</label>
+      <input type="number" name="dias_margem_promocao" value="{{ produto.dias_margem_promocao|default:30 }}" />
+    </div>
+    <button type="submit" class="btn btn-dark">Salvar produto</button>
+    {% if produto %}
+    <a href="{% url 'deletar_produto' produto.pk %}" data-delete-produto class="btn btn-red" style="display: block; text-align: center; text-decoration: none; margin-top: 10px;">Excluir produto</a>
+    {% endif %}
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll('[data-delete-produto]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Deseja realmente excluir este produto? Esta ação é irreversível.')) {
+        fetch(this.href, {
+          method: 'DELETE',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        }).then(response => {
+          if (response.ok) {
+            alert('Produto excluído com sucesso!');
+            window.location.href = '{% url "estoque_lista" %}';
+          } else {
+            alert('Erro ao excluir produto.');
+          }
+        }).catch(err => console.error('Error:', err));
+      }
+    });
+  });
+</script>
+{% endblock %}
