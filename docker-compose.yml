@@ -24,7 +24,7 @@ services:
     ports:
       - "${PORT}:${PORT}"                   # Expose Django dev server to the host
     volumes:
-      - ./src:/app/src                    # Live-mount source so edits apply instantly
+      - .:/app              # Live-mount source so edits apply instantly
       - ./fixtures:/app/fixtures
       - venv_data:/app/.venv          # Persist the venv across container restarts
     env_file:

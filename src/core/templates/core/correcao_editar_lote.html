@@ -28,6 +28,7 @@
       {% endfor %}
     </select>
   </div>
+  <input type="hidden" name="data_validade" value="{{ lote.data_validade|date:'Y-m-d' }}">
   <button type="submit" class="btn btn-dark">Salvar alterações</button>
 </form>
 {% endblock %}

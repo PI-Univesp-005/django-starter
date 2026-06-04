@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.utils import timezone
 from .models import Produto, Lote, Filial
 from django.db.models import Sum, Q
+from django.utils.dateparse import parse_date # Adicione esta linha no topo
 
 
 
@@ -168,8 +169,14 @@ def editar_lote(request, pk):
     lote = get_object_or_404(Lote, pk=pk)
     if request.method in ['PUT', 'POST']:
         lote.numero_lote = request.POST.get('numero_lote', '')
-        lote.data_validade = request.POST.get('data_validade')
+        data_raw = request.POST.get('data_validade')
+
+        if data_raw:
+            lote.data_validade = parse_date(data_raw)
+        
+        # O lote.save() deve estar alinhado com o 'if', para salvar sempre:
         lote.quantidade = int(request.POST.get('quantidade', 0))
+        
         lote.save()
         messages.success(request, 'Lote atualizado!')
         
@@ -395,13 +402,15 @@ def correcao_editar_lote(request, pk):
     if request.method in ['PUT', 'POST']:
         nova_quantidade = int(request.POST.get('quantidade', 0))
         novo_status = request.POST.get('status')
+        nova_data = request.POST.get('data_validade') # <--- Captura a data que você incluiu no HTML
         
         if nova_quantidade < 0:
             messages.error(request, 'Quantidade não pode ser negativa.')
         else:
             lote.quantidade = nova_quantidade
             lote.status = novo_status
-            lote.save()
+            lote.data_validade = nova_data # <--- Atribui a data ao lote
+            lote.save() # <--- Agora o save tem todos os campos obrigatórios
             messages.success(request, f'Lote {lote.numero_lote or "s/n"} atualizado com sucesso.')
             
             if request.method == 'PUT':

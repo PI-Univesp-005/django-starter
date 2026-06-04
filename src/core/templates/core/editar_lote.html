@@ -36,20 +36,6 @@
   <a href="{% url 'estoque_detalhe' lote.produto.pk %}" class="btn btn-outline">Cancelar</a>
 </div>
 
-<script>
-  document.querySelectorAll('[data-edit-form]').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      fetch(this.action, {
-        method: 'PUT',
-        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-        body: new URLSearchParams(formData)
-      }).then(response => {
-        if (response.ok) window.location.href = '{% url "estoque_detalhe" lote.produto.pk %}';
-        else alert('Erro ao salvar lote.');
-      }).catch(err => console.error('Error:', err));
-    });
-  });
-</script>
+
+
 {% endblock %}
