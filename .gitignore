@@ -43,3 +43,6 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+mysql_data/
+postgres_data/
+venv_data/

@@ -19,4 +19,5 @@ urlpatterns = [
     # Include URL patterns from the "core" app. This allows us to keep
     # app-specific URLs organized within the app itself.
     path("", include("core.urls")),
+    path("", include("scanner.urls")),
 ]

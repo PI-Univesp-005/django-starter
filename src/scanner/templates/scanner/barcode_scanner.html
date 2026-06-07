@@ -1,0 +1,47 @@
+<div
+  id="barcodeScannerModal"
+  class="barcode-scanner-modal"
+  aria-hidden="true"
+>
+  <div class="barcode-scanner-backdrop" onclick="closeScannerModal()"></div>
+
+  <div class="barcode-scanner-dialog" role="dialog" aria-modal="true" aria-labelledby="barcodeScannerTitle">
+    <div class="barcode-scanner-header">
+      <div>
+        <h3 id="barcodeScannerTitle">Scanner</h3>
+        <p>Scanear produto</p>
+      </div>
+
+      <button
+        type="button"
+        class="barcode-scanner-close"
+        onclick="closeScannerModal()"
+        aria-label="Fechar scanner"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="barcode-scanner-preview-wrap">
+      <video id="barcodeScannerPreview" class="barcode-scanner-preview" autoplay muted playsinline></video>
+      <div class="barcode-scanner-line"></div>
+    </div>
+
+    <div class="barcode-scanner-info">
+      <div class="barcode-scanner-row">
+        <span>Status</span>
+        <strong id="barcodeScannerStatus">Desligado</strong>
+      </div>
+
+      <div class="barcode-scanner-row">
+        <span>Resultado</span>
+        <strong id="barcodeScannerResult">Nenhum código lido</strong>
+      </div>
+
+      <div class="barcode-scanner-row">
+        <span>Formato</span>
+        <strong id="barcodeScannerFormat">—</strong>
+      </div>
+    </div>
+  </div>
+</div>

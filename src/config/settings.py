@@ -32,7 +32,8 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 # ALLOWED_HOSTS controls which domain names Django will serve.
 # Accepts a comma-separated list from the environment.
 _raw_hosts = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1")
-ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
+
+ALLOWED_HOSTS =  [h.strip() for h in _raw_hosts.split(",") if h.strip()]
 
 # ── Fixtures setup ────────────────────────────────────────────────────────────
 FIXTURE_DIRS = [
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core.apps.CoreConfig", 
+    "scanner.apps.ScannerConfig",
 ]
 
 MIDDLEWARE = [

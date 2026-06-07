@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}FreshStock - Estoque{% endblock %}
 
@@ -8,10 +9,81 @@
   <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
 </div>
 
+<link rel="stylesheet" href="{% static 'scanner/css/barcode_scanner.css' %}">
+
+<style>
+  .busca-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .busca-container input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .scan-trigger-inline {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid #d4d4d8;
+    background: #ffffff;
+    color: #18181b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .scan-trigger-inline svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+</style>
+
 <form method="get" style="margin-bottom: 15px;">
   <div class="busca-container">
     <span>🔍</span>
-    <input type="text" name="q" value="{{ q }}" placeholder="Buscar produto..." />
+    <input
+      type="text"
+      id="estoqueBusca"
+      name="q"
+      value="{{ q }}"
+      placeholder="Buscar produto..."
+    />
+    <button
+      type="button"
+      class="scan-trigger-inline"
+      onclick="startScanner('estoqueBusca')"
+      aria-label="Abrir câmera para buscar produto"
+      title="Escanear código"
+    >
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M4 8.5C4 7.12 5.12 6 6.5 6H8.2L9.15 4.8C9.53 4.31 10.11 4 10.73 4H13.27C13.89 4 14.47 4.31 14.85 4.8L15.8 6H17.5C18.88 6 20 7.12 20 8.5V16.5C20 17.88 18.88 19 17.5 19H6.5C5.12 19 4 17.88 4 16.5V8.5Z"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linejoin="round"
+        />
+        <circle
+          cx="12"
+          cy="12.5"
+          r="3.2"
+          stroke="currentColor"
+          stroke-width="1.8"
+        />
+        <path
+          d="M17.2 9.2H17.21"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </button>
   </div>
 
   <div class="filtros-pills">
@@ -69,4 +141,8 @@
 {% endif %}
 
 <div class="hint" style="margin-top: 12px;">Toque em › para ver lotes e movimentar estoque</div>
+
+{% include "scanner/barcode_scanner.html" %}
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+<script src="{% static 'scanner/js/barcode_scanner.js' %}"></script>
 {% endblock %}

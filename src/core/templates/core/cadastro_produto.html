@@ -1,8 +1,45 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}FreshStock - Cadastrar Produto{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'scanner/css/barcode_scanner.css' %}">
+
+<style>
+  .codigo-barras-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .codigo-barras-wrapper input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .scan-trigger-inline {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid #d4d4d8;
+    background: #ffffff;
+    color: #18181b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .scan-trigger-inline svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+</style>
+
 <div class="topo-navegacao">
   <div class="titulo-pagina">📝 Cadastrar / Editar produto</div>
   <a href="{% url 'menu' %}" class="btn-voltar">← Voltar</a>
@@ -26,28 +63,77 @@
         <option value="🥩" {% if produto.emoji == '🥩' %}selected{% endif %}>🥩 Carnes / Proteínas</option>
       </select>
     </div>
+
     <div class="field">
       <label>Nome do produto</label>
-      <input type="text" name="nome" value="{{ produto.nome|default:'' }}" required />
+      <input type="text" id="nome" name="nome" value="{{ produto.nome|default:'' }}" required />
     </div>
+
     <div class="field">
       <label>Código de barras</label>
-      <input type="text" name="codigo_barras" value="{{ produto.codigo_barras|default:'' }}" pattern="[0-9]*" inputmode="numeric" title="Apenas números são permitidos" />
+      <div class="codigo-barras-wrapper">
+        <input
+          type="text"
+          id="codigo_barras"
+          name="codigo_barras"
+          value="{{ produto.codigo_barras|default:'' }}"
+          pattern="[0-9]*"
+          inputmode="numeric"
+          title="Apenas números são permitidos"
+        />
+        <button
+          type="button"
+          class="scan-trigger-inline"
+          onclick="startScanner('codigo_barras')"
+          aria-label="Abrir câmera para ler código de barras"
+          title="Escanear código"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 8.5C4 7.12 5.12 6 6.5 6H8.2L9.15 4.8C9.53 4.31 10.11 4 10.73 4H13.27C13.89 4 14.47 4.31 14.85 4.8L15.8 6H17.5C18.88 6 20 7.12 20 8.5V16.5C20 17.88 18.88 19 17.5 19H6.5C5.12 19 4 17.88 4 16.5V8.5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+            <circle
+              cx="12"
+              cy="12.5"
+              r="3.2"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <path
+              d="M17.2 9.2H17.21"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
+
     <div class="field">
       <label>Descrição</label>
       <input type="text" name="descricao" value="{{ produto.descricao|default:'' }}" />
     </div>
+
     <div class="field">
       <label>Margem de promoção (dias antes de vencer)</label>
       <input type="number" name="dias_margem_promocao" value="{{ produto.dias_margem_promocao|default:30 }}" />
     </div>
+
     <button type="submit" class="btn btn-dark">Salvar produto</button>
+
     {% if produto %}
     <a href="{% url 'deletar_produto' produto.pk %}" data-delete-produto class="btn btn-red" style="display: block; text-align: center; text-decoration: none; margin-top: 10px;">Excluir produto</a>
     {% endif %}
   </form>
 </div>
+
+{% include "scanner/barcode_scanner.html" %}
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+<script src="{% static 'scanner/js/barcode_scanner.js' %}"></script>
 
 <script>
   document.querySelectorAll('[data-delete-produto]').forEach(link => {
